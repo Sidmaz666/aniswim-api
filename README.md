@@ -191,7 +191,7 @@ A simple API to get anime details and video links.
 
 ### <a src="https://aniswim-api.herokuapp.com/">Live Demo</a>
 
-<a href="https://aniswim-api.herokuapp.com/">Live Link</a>
+<a href="https://aniswim-api.herokuapp.com/">Live Link</a> - Getthe list of top/popular Anime.
 
 
 

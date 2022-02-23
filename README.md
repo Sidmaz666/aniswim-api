@@ -2,6 +2,11 @@
 
 A simple API to get anime details and video links.
 
+## Installation
+	
+	npm i
+		
+Run Locally - `npm run start ` or `node index.js`
 
 ## Endpoints:
 

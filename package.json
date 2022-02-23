@@ -1,0 +1,17 @@
+{
+  "name": "aniswim-api",
+  "version": "1.0.0",
+  "description": "A simple anime api for anime details and video links.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "Sidhartha Mazumder",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.0",
+    "cheerio": "^1.0.0-rc.10",
+    "express": "^4.17.3"
+  }
+}

@@ -3,7 +3,7 @@ const ani = require('./functions/main')
 
 const server = express()
 
-const port = process.env.PORT
+const port = process.env.PORT 
 
 server.get('/', (req,res) => {
   const page = req.query.page || 1

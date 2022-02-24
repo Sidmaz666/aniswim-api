@@ -97,16 +97,27 @@ async function search_anime(res,query,page){
     const $ = cheerio.load(search_raw_html)
 
     const anime = []
+    const thumb_arr = []
+      $('img.card-img-top').each(function(){
+	const thumb= $(this).attr('src')
+	thumb_arr.push(
+	  thumb
+	)
+      })
+    
+    let count=0
+
     $('h6.card-title').each(function(){
       const title = $(this).find('a').text()
-      const thumb = $('img.card-img-top').attr('src')
       const link = $(this).find('a').attr('href')
       const animeID = link.replace('/view/','')
-      anime.push({
-	title,
-	animeID,
-	thumb
-      })
+      const thumbnail = thumb_arr[count]
+	anime.push({
+	  title,
+	  animeID,
+	  thumbnail
+	})
+      count++
     })
 
 
@@ -134,16 +145,27 @@ async function latest_anime(res,page){
     const $ = cheerio.load(search_raw_html)
 
     const anime = []
+    const thumb_arr = []
+      $('img.card-img-top').each(function(){
+	const thumb= $(this).attr('src')
+	thumb_arr.push(
+	  thumb
+	)
+      })
+    
+    let count=0
+
     $('h6.card-title').each(function(){
       const title = $(this).find('a').text()
-      const thumb = $('img.card-img-top').attr('src')
       const link = $(this).find('a').attr('href')
       const animeID = link.replace('/view/','')
+      const thumbnail = thumb_arr[count]
       anime.push({
 	title,
 	animeID,
-	thumb
+	thumbnail
       })
+      count++
     })
 
 
@@ -171,16 +193,28 @@ async function popular_anime(res,page){
     const $ = cheerio.load(search_raw_html)
 
     const anime = []
+    const thumb_arr = []
+      $('img.card-img-top').each(function(){
+	const thumb= $(this).attr('src')
+	thumb_arr.push(
+	  thumb
+	)
+      })
+    
+    let count=0
+
+    
     $('h6.card-title').each(function(){
       const title = $(this).find('a').text()
-      const thumb = $('img.card-img-top').attr('src')
       const link = $(this).find('a').attr('href')
       const animeID = link.replace('/view/','')
+      const thumbnail = thumb_arr[count]
       anime.push({
 	title,
 	animeID,
-	thumb
+	thumbnail
       })
+      count++
     })
 
 

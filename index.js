@@ -1,9 +1,12 @@
 const express = require('express'); 
 const ani = require('./functions/main')
+const cors = require('cors')
 
 const server = express()
 
-const port = process.env.PORT 
+server.use(cors())
+
+const port = process.env.PORT || 2090 
 
 server.get('/', (req,res) => {
   const page = req.query.page || 1

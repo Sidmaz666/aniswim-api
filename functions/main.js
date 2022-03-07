@@ -2,8 +2,9 @@
   const { exec } = require("child_process");
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const cdn_url = "https://gogoplay.io/encrypt-ajax.php"
+  const cdn_url = "https://gogoplay4.com/encrypt-ajax.php"
   const anime_url = `https://anistream.fun/view/${id}`
+   
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -24,55 +25,103 @@
      const description = $('div.movie-container').find('h6').last().text().replace('Anime Plot : ','').trim().replaceAll('\n')
      const anime_status = $('div.movie-container').find('h6').last().prev().text().replace('Anime Status : ','').trim()
 
-    const fetch_req = await axios.get(iframeLink, { headers : header, })
-    const fetch_req_html = fetch_req.data
 
-    const $$ = cheerio.load(fetch_req_html)
-    const videoID = $$('input#id').attr('value')
-    const mock_title = $$('input#title').attr('value')
-    
+    const send_iframe_req = await axios.get(iframeLink, { headers: header })
+    const iframe_data = send_iframe_req.data
 
-    const  key='3235373436353338353932393338333936373634363632383739383333323838'
-    const  iv='34323036393133333738303038313335'
- 
-    exec(`echo ${videoID} | openssl enc -aes256 -K ${key} -iv ${iv} -a`, (error, stdout, stderr) => {
+    const $$ = cheerio.load(iframe_data)
+    const crypto_data = $$('script[data-name=crypto]').attr('data-value')
 
-      const encrypted_ID = stdout.replace('\n','')
-      const gogo_config = {
-	headers : {
-	       Accept: 'application/json, text/javascript, */*; q=0.01',
-	  	Referer: `${iframeLink}`,
-	      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
-	      'X-Requested-With': 'XMLHttpRequest'
-	},
-	params:{
-	  id:`${encrypted_ID}`,
-	  title: `${mock_title}`,
-	  refer: "https://anistream.fun/",
-	  time: '69420691337800813569'
-	}
-      }
+    const secret_key='3235373136353338353232393338333936313634363632323738383333323838'
+    const iv='31323835363732393835323338333933'
+
+    exec(`echo "${crypto_data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}" | cut -d '&' -f1`,
+      (error,stdout,stderr) => {
+
+	const id = stdout.replaceAll('\n', '') 
+
+	const oactal_s= new String('\010\016\003\010\t\003\004\t')
+
+	exec(`printf "%s${oactal_s}" "${id}" | openssl enc -aes256 -K "${secret_key}" -iv "${iv}" -a`,
+	  (error,stdout,stderr) => {
+
+	  const id_enc = stdout.replaceAll('\n', '')
+
+	    axios.get(cdn_url,{
+	      headers : {
+		'X-Requested-With' : 'XMLHttpRequest'
+	      },
+	      params : {
+		id : `${id_enc}`
+	      }
+	    }).then(function(response){
+	
+	   
+	   const key_data = response.data
+
+ 	   const data = key_data.data.replaceAll(/[\"]/g,'').replaceAll(/[\\]/g,'')
+
 	
 
-      axios.get(cdn_url,gogo_config)
-      .then(function(response){
-	const video_links = response.data
-	anime.push(
-	  {
-	    title,
-	    total_ep,
-	    anime_status,
-	    description,
-	    iframeLink,
-	    videoID,
-	    video_links
-	  }
-	)
+	      exec(`printf '%s' "${data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}" `,
+		(error,stdout,stderr) => {
 
-      res.status(200).json(anime)
+		  
+
+	      const decrypted_data = JSON.stringify(stdout)
+
+
+	     const clear_bs = decrypted_data.replaceAll(/\\\\/g, '')
+
+	
+		  const match_regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
+	
+                 const  video_links = [] 
+
+		  clear_bs.match(match_regex).forEach(link => {
+
+		  const resolution = link.substring(86).match(/.*\.mp4/)
+
+		    console.log(resolution)
+		    	
+		    video_links.push({
+
+		      link,
+		      resolution
+
+		    })
+
+		  })
+
+	       
+
+
+		anime.push(
+		    {
+		  title,
+		  total_ep,
+		  anime_status,
+		  description,
+		  iframeLink,
+		  video_links
+		  }
+		)
+
+	      res.status(200).json(anime)
+
+
+	      })
+
+
+	    })
+
+
 	})
 
+
     })
+	
+ 
 
   } catch (error) {
     res.status(200).json({ message: error })

@@ -68,32 +68,14 @@
 
 		  
 
-	      const decrypted_data = JSON.stringify(stdout)
+	      const decrypted_data = stdout
 
 
-	     const clear_bs = decrypted_data.replaceAll(/\\\\/g, '')
+	     const clear_bs = decrypted_data.replaceAll('"{','{')
+		    .replaceAll('}"', '}').replaceAll('"<P', ': [')
+		    .replaceAll('#', '"').replaceAll('"sourco', '"sourco"').replaceAll('meme', 'file')
 
-	
-		  const match_regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
-	
-                 const  video_links = [] 
-
-		  clear_bs.match(match_regex).forEach(link => {
-
-		  const resolution = link.substring(86).match(/.*\.mp4/)
-
-		    console.log(resolution)
-		    	
-		    video_links.push({
-
-		      link,
-		      resolution
-
-		    })
-
-		  })
-
-	       
+	   const video_links = JSON.parse(clear_bs)
 
 
 		anime.push(
@@ -103,7 +85,7 @@
 		  anime_status,
 		  description,
 		  iframeLink,
-		  video_links
+		  video_data
 		  }
 		)
 
@@ -124,7 +106,8 @@
  
 
   } catch (error) {
-    res.status(200).json({ message: error })
+ 	get_anime(res, id)
+    //   res.status(200).json({ message: error })
   }
 
 }

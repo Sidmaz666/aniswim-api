@@ -26,26 +26,17 @@
      const anime_status = $('div.movie-container').find('h6').last().prev().text().replace('Anime Status : ','').trim()
 
 
-    const send_iframe_req = await axios.get(iframeLink, { headers: header })
-    const iframe_data = send_iframe_req.data
+    const secret_key='3633393736383832383733353539383139363339393838303830383230393037'
+    const iv='34373730343738393639343138323637'
+	
+    const getId=`printf "%s" "${iframeLink}" | sed -nE 's/.*id=(.*)&title.*/\\1/p'`
 
-    const $$ = cheerio.load(iframe_data)
-    const crypto_data = $$('script[data-name=crypto]').attr('data-value')
-
-    const secret_key='3235373136353338353232393338333936313634363632323738383333323838'
-    const iv='31323835363732393835323338333933'
-
-    exec(`echo "${crypto_data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}" | cut -d '&' -f1`,
+    exec(`${getId}`,
       (error,stdout,stderr) => {
 
-	const id = stdout.replaceAll('\n', '') 
+	exec(`echo ${getId} |openssl enc -e -aes256 -K "${secret_key}" -iv "${iv}" | base64`, (error,stdout,stderr) => {
 
-	const oactal_s= new String('\010\016\003\010\t\003\004\t')
-
-	exec(`printf "%s${oactal_s}" "${id}" | openssl enc -aes256 -K "${secret_key}" -iv "${iv}" -a`,
-	  (error,stdout,stderr) => {
-
-	  const id_enc = stdout.replaceAll('\n', '')
+	  const id_enc = stdout
 
 	    axios.get(cdn_url,{
 	      headers : {
@@ -55,27 +46,14 @@
 		id : `${id_enc}`
 	      }
 	    }).then(function(response){
-	
-	   
-	   const key_data = response.data
 
- 	   const data = key_data.data.replaceAll(/[\"]/g,'').replaceAll(/[\\]/g,'')
+	      const decrypt_data = response.data.data
 
-	
-
-	      exec(`printf '%s' "${data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}" `,
+	      exec(`echo "${decrypt_data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}"`,
 		(error,stdout,stderr) => {
 
-		  
 
-	      const decrypted_data = stdout
-
-
-	     const clear_bs = decrypted_data.replaceAll('"{','{')
-		    .replaceAll('}"', '}').replaceAll('"<P', ': [')
-		    .replaceAll('#', '"').replaceAll('"sourco', '"sourco"').replaceAll('meme', 'file')
-
-	   const video_links = JSON.parse(clear_bs)
+	   const video_links = JSON.parse(stdout)
 
 
 		anime.push(
@@ -85,25 +63,22 @@
 		  anime_status,
 		  description,
 		  iframeLink,
-		  video_data
+		  video_links
 		  }
 		)
 
 	      res.status(200).json(anime)
 
 
-	      })
+		})
 
-
-	    })
-
-
+	     
 	})
 
+      })
 
-    })
-	
- 
+      })
+
 
   } catch (error) {
  	get_anime(res, id)

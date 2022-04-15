@@ -2,7 +2,7 @@
   const { exec } = require("child_process");
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const cdn_url = "https://gogoplay4.com/encrypt-ajax.php"
+  const cdn_url = "https://goload.pro/encrypt-ajax.php"
   const anime_url = `https://anistream.fun/view/${id}`
    
   const header =  {
@@ -26,8 +26,10 @@
      const anime_status = $('div.movie-container').find('h6').last().prev().text().replace('Anime Status : ','').trim()
 
 
-    const secret_key='3633393736383832383733353539383139363339393838303830383230393037'
-    const iv='34373730343738393639343138323637'
+       const secret_key='3534323530333734323633343039393638353434373737363735393932343330'
+       const iv='39333130363136353733343634303435'
+
+
 	
     const getId=`printf "%s" "${iframeLink}" | sed -nE 's/.*id=(.*)&title.*/\\1/p'`
 
@@ -51,7 +53,10 @@
 
 	      exec(`echo "${decrypt_data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}"`,
 		(error,stdout,stderr) => {
-
+	
+		  if(error){
+		    res.json(error)
+		  }
 
 	   const video_links = JSON.parse(stdout)
 

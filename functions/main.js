@@ -25,42 +25,60 @@
      const description = $('div.movie-container').find('h6').last().text().replace('Anime Plot : ','').trim().replaceAll('\n')
      const anime_status = $('div.movie-container').find('h6').last().prev().text().replace('Anime Status : ','').trim()
 
-
-       const secret_key='3534323530333734323633343039393638353434373737363735393932343330'
-       const iv='39333130363136353733343634303435'
-
-
+     const fetch_iframe = await axios.get(iframeLink, { headers : header })
+     const iframeData = fetch_iframe.data
 	
-    const getId=`printf "%s" "${iframeLink}" | sed -nE 's/.*id=(.*)&title.*/\\1/p'`
+    const $$ = cheerio.load(iframeData)
 
-    exec(`${getId}`,
-      (error,stdout,stderr) => {
+        let iv = $$('div.wrapper').attr('class').replaceAll('wrapper container-','')
 
-	exec(`echo ${getId} |openssl enc -e -aes256 -K "${secret_key}" -iv "${iv}" | base64`, (error,stdout,stderr) => {
+	let sh = `echo "${iv}" | tr -d "\n" | od -A n -t x1 | tr -d " |\n"`
 
-	  const id_enc = stdout
+      exec(sh,(error,stdout,stderror) => {
 
-	    axios.get(cdn_url,{
-	      headers : {
-		'X-Requested-With' : 'XMLHttpRequest'
-	      },
-	      params : {
-		id : `${id_enc}`
-	      }
-	    }).then(function(response){
+		iv = stdout
 
-	      const decrypt_data = response.data.data
+	const id = iframeLink.split('=')[1].replaceAll('&title','')
 
-	      exec(`echo "${decrypt_data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}"`,
+	 sh = `printf "%s" "${id}" | base64 -d | od -A n -t x1 | tr -d " |\n"`
+	
+	exec(sh, (error, stdout, stderror) => {
+      	const dec_id = stdout
+	
+	  let sh = `printf "%s%s" "${dec_id}" "${iv}" | cut -c-32 | tr -d "\n" | od -A n -t x1 | tr -d " |\n"`
+
+	  exec(sh,(error,stdout,stderror) => {
+	
+	    const secret_key = stdout
+
+	    sh = `printf '%s' "${id}" | openssl enc -e -aes256 -K "${secret_key}" -iv "${iv}" | base64`
+
+	    exec(sh, async(error,stdout,stderror) => {
+	    
+	      const ajax = stdout.replaceAll('\n','')
+	    	
+	      const _fetch = await axios.get(cdn_url, {
+		headers : {
+		  'X-Requested-With': 'XMLHttpRequest',
+		},
+		params : {
+		  id : `${ajax}`,
+		  alias : `${id}`
+		}
+	      })
+
+	      const data = await _fetch.data.data
+
+	      
+	      exec(`printf "%s" "${data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}"`,
 		(error,stdout,stderr) => {
 	
 		  if(error){
 		    res.json(error)
 		  }
 
-	   const video_links = JSON.parse(stdout)
-
-
+		   const video_links = JSON.parse(stdout)
+		 
 		anime.push(
 		    {
 		  title,
@@ -73,17 +91,12 @@
 		)
 
 	      res.status(200).json(anime)
-
-
-		})
-
-	     
+	      
+	    })
+	  })
 	})
-
       })
-
-      })
-
+  })
 
   } catch (error) {
  	get_anime(res, id)

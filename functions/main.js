@@ -1,9 +1,10 @@
- async function get_anime (res,id){
+ async function get_anime (res,id,ep){
   const { exec } = require("child_process");
   const axios = require('axios')
   const cheerio = require('cheerio')
   const cdn_url = "https://goload.pro/encrypt-ajax.php"
-  const anime_url = `https://anistream.fun/view/${id}`
+
+  const anime_url = `https://ww3.gogoanime2.org/anime/${id}`
    
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -11,96 +12,59 @@
   }
 
   try{
-    const send_fetch_req = await axios.get(anime_url,{headers : header,})
-    const fetch_raw_html = send_fetch_req.data
+   let send_fetch_req = await axios.get(anime_url,{headers : header})
+   let fetch_raw_html = send_fetch_req.data
 
-    const $ = cheerio.load(fetch_raw_html)
 
-    const anime = []
+   let $ = cheerio.load(fetch_raw_html)
+   
+   const requested_episode = Number(ep)
+   const title = $('div.anime_info_body_bg').find('h1').text()
+   let anime_type = $('div.anime_info_body_bg').find('h1').next().text().replace('Type: ', '').replaceAll('\n','').trim()
+   const genre = $('div.anime_info_body_bg').find('h1').next().next().next().text().replace('Genre: ', '').replaceAll(' ','').replaceAll('\n','')
+    const released_year = $('div.anime_info_body_bg').find('h1').next().next().next().next().text().replace('Released: ', '').replaceAll(' ','').replaceAll('\n','')
 
-     const main =  $('div#epslistplace')
-     const total_ep =  main.find('button.playbutton').last().text()
-     const title = $('h1').text()
-     const iframeLink = "https:" + $('iframe').attr('src')
-     const description = $('div.movie-container').find('h6').last().text().replace('Anime Plot : ','').trim().replaceAll('\n')
-     const anime_status = $('div.movie-container').find('h6').last().prev().text().replace('Anime Status : ','').trim()
+   const anime_status =  $('div.anime_info_body_bg').find('p').last().prev().text().replace('Status: ', '').replaceAll('\n','').replaceAll(' ','')
+   const other_name =  $('div.anime_info_body_bg').find('p').last().text().replace('Other name:', '').replaceAll('\n','').replaceAll(' ','') || 'Not-Mentioned'
 
-     const fetch_iframe = await axios.get(iframeLink, { headers : header })
-     const iframeData = fetch_iframe.data
+   const description =  $('div.anime_info_body_bg').find('h1').next().next().text().replace('Plot Summary: ', '')
+   const total_ep =  $('div#load_ep').find('ul#episode_related li').length
+
+   const anime_watch_url = `https://gogoanime.lu/${id}-episode-${ep}`
+
+  send_fetch_req = await axios(anime_watch_url,{headers:header})
+  fetch_raw_html = await send_fetch_req.data
 	
-    const $$ = cheerio.load(iframeData)
+    $ = cheerio.load(fetch_raw_html)
 
-        let iv = $$('div.wrapper').attr('class').replaceAll('wrapper container-','')
+    const iframeLink = "https:" + $('div.play-video').find('iframe').attr('src')
+    const download_link = $('div.favorites_book').find('ul').find('.dowloads').find('a').attr('href')
+   
 
-	let sh = `echo "${iv}" | tr -d "\n" | od -A n -t x1 | tr -d " |\n"`
+  //send_fetch_req = await axios(download_link,{headers:header})
+  //fetch_raw_html = await send_fetch_req.data
+ 
+//  $ = cheerio.load(fetch_raw_html)
 
-      exec(sh,(error,stdout,stderror) => {
+  
 
-		iv = stdout
 
-	const id = iframeLink.split('=')[1].replaceAll('&title','')
-
-	 sh = `printf "%s" "${id}" | base64 -d | od -A n -t x1 | tr -d " |\n"`
-	
-	exec(sh, (error, stdout, stderror) => {
-      	const dec_id = stdout
-	
-	  let sh = `printf "%s%s" "${dec_id}" "${iv}" | cut -c-32 | tr -d "\n" | od -A n -t x1 | tr -d " |\n"`
-
-	  exec(sh,(error,stdout,stderror) => {
-	
-	    const secret_key = stdout
-
-	    sh = `printf '%s' "${id}" | openssl enc -e -aes256 -K "${secret_key}" -iv "${iv}" | base64`
-
-	    exec(sh, async(error,stdout,stderror) => {
-	    
-	      const ajax = stdout.replaceAll('\n','')
-	    	
-	      const _fetch = await axios.get(cdn_url, {
-		headers : {
-		  'X-Requested-With': 'XMLHttpRequest',
-		},
-		params : {
-		  id : `${ajax}`,
-		  alias : `${id}`
-		}
-	      })
-
-	      const data = await _fetch.data.data
-
-	      
-	      exec(`printf "%s" "${data}" | base64 -d | openssl enc -d -aes256 -K "${secret_key}" -iv "${iv}"`,
-		(error,stdout,stderr) => {
-	
-		  if(error){
-		    res.json(error)
-		  }
-
-		   const video_links = JSON.parse(stdout)
-		 
-		anime.push(
-		    {
-		  title,
-		  total_ep,
-		  anime_status,
-		  description,
-		  iframeLink,
-		  video_links
-		  }
-		)
-
-	      res.status(200).json(anime)
-	      
-	    })
-	  })
-	})
-      })
-  })
-
+    res.status(200).json({
+      title,
+      anime_type,
+      genre,
+      released_year,
+      description,
+      other_name,
+      anime_status,
+      total_ep,
+      requested_episode,
+      iframeLink
+    })
+  
   } catch (error) {
- 	get_anime(res, id)
-    //   res.status(200).json({ message: error })
+ 	//get_anime(res, id)
+       res.status(200).json({ message: error })
   }
 
 }
@@ -108,7 +72,7 @@
 async function search_anime(res,query,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://anistream.fun/results?q=${query}&p=${page}`
+  const search_url = `https://ww3.gogoanime2.org/search/${query}/${page || 1}`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -123,8 +87,8 @@ async function search_anime(res,query,page){
 
     const anime = []
     const thumb_arr = []
-      $('img.card-img-top').each(function(){
-	const thumb= $(this).attr('src')
+    $('.items > li').each(function(){
+	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)
@@ -132,16 +96,17 @@ async function search_anime(res,query,page){
     
     let count=0
 
-    $('h6.card-title').each(function(){
-      const title = $(this).find('a').text()
+    
+    $('.items > li').each(function(){
+      const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/view/','')
-      const thumbnail = thumb_arr[count]
-	anime.push({
-	  title,
-	  animeID,
-	  thumbnail
-	})
+      const animeID = link.replace('/anime/','')
+      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
+      anime.push({
+	title,
+	animeID,
+	thumbnail
+      })
       count++
     })
 
@@ -156,7 +121,7 @@ async function search_anime(res,query,page){
 async function latest_anime(res,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://anistream.fun/browse?p=${page}`
+  const search_url = `https://ww3.gogoanime2.org/new-season/${page || 1}`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -171,8 +136,8 @@ async function latest_anime(res,page){
 
     const anime = []
     const thumb_arr = []
-      $('img.card-img-top').each(function(){
-	const thumb= $(this).attr('src')
+    $('.items > li').each(function(){
+	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)
@@ -180,11 +145,12 @@ async function latest_anime(res,page){
     
     let count=0
 
-    $('h6.card-title').each(function(){
-      const title = $(this).find('a').text()
+    
+    $('.items > li').each(function(){
+      const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/view/','')
-      const thumbnail = thumb_arr[count]
+      const animeID = link.replace('/anime/','')
+      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
       anime.push({
 	title,
 	animeID,
@@ -204,7 +170,7 @@ async function latest_anime(res,page){
 async function popular_anime(res,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://anistream.fun/top?p=${page}`
+  const search_url = `https://ww3.gogoanime2.org/popular/${page || 1 }`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -219,8 +185,8 @@ async function popular_anime(res,page){
 
     const anime = []
     const thumb_arr = []
-      $('img.card-img-top').each(function(){
-	const thumb= $(this).attr('src')
+    $('.items > li').each(function(){
+	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)
@@ -229,11 +195,11 @@ async function popular_anime(res,page){
     let count=0
 
     
-    $('h6.card-title').each(function(){
-      const title = $(this).find('a').text()
+    $('.items > li').each(function(){
+      const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/view/','')
-      const thumbnail = thumb_arr[count]
+      const animeID = link.replace('/anime/','')
+      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
       anime.push({
 	title,
 	animeID,

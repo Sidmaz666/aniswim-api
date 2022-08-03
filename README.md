@@ -1,5 +1,3 @@
-## The API is Down!
-
 # aniswim-api
 
 A simple API to get anime details and video links.
@@ -201,3 +199,6 @@ Run Locally - `npm run start ` or `node index.js`
 
 
 
+# Note
+
+`Video Links Not Available!`

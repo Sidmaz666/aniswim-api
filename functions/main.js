@@ -18,7 +18,7 @@
 
    let $ = cheerio.load(fetch_raw_html)
    
-   const requested_episode = Number(ep)
+   const requested_episode = ep
    const title = $('div.anime_info_body_bg').find('h1').text()
    let anime_type = $('div.anime_info_body_bg').find('h1').next().text().replace('Type: ', '').replaceAll('\n','').trim()
    const genre = $('div.anime_info_body_bg').find('h1').next().next().next().text().replace('Genre: ', '').replaceAll(' ','').replaceAll('\n','')
@@ -28,7 +28,7 @@
    const other_name =  $('div.anime_info_body_bg').find('p').last().text().replace('Other name:', '').replaceAll('\n','').replaceAll(' ','') || 'Not-Mentioned'
 
    const description =  $('div.anime_info_body_bg').find('h1').next().next().text().replace('Plot Summary: ', '')
-   const total_ep =  $('div#load_ep').find('ul#episode_related li').length
+   const total_ep =  $('div#load_ep').find('ul#episode_related li').length.toString()
 
    const anime_watch_url = `https://gogoanime.lu/${id}-episode-${ep}`
 

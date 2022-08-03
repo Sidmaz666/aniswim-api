@@ -6,7 +6,7 @@ const server = express()
 
 server.use(cors())
 
-const port = process.env.PORT || 2090 
+const port = process.env.PORT || 3020 
 
 server.get('/', (req,res) => {
   const page = req.query.page || 1
@@ -21,7 +21,8 @@ server.get('/search', (req,res) => {
 
 server.get('/anime',(req,res) => {
   const id = req.query.id
-  ani.get_anime(res,id)
+  const ep = req.query.ep || 1
+  ani.get_anime(res,id,ep)
 })
 
 server.get('/latest', (req,res) => {

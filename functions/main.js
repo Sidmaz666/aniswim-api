@@ -88,7 +88,7 @@ async function search_anime(res,query,page){
     const anime = []
     const thumb_arr = []
     $('.items > li').each(function(){
-	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
+	const thumb=  $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)
@@ -137,7 +137,7 @@ async function latest_anime(res,page){
     const anime = []
     const thumb_arr = []
     $('.items > li').each(function(){
-	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
+	const thumb=  $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)
@@ -186,7 +186,7 @@ async function popular_anime(res,page){
     const anime = []
     const thumb_arr = []
     $('.items > li').each(function(){
-	const thumb= "https://ww3.gogoanime2.org" + $(this).find('img').attr('src')
+	const thumb= $(this).find('img').attr('src')
 	thumb_arr.push(
 	  thumb
 	)

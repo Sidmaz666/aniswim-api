@@ -1,5 +1,37 @@
- async function get_anime (res,id,ep){
-  const { exec } = require("child_process");
+async function decipherLinks(data){
+  const axios = require('axios')
+  const cheerio = require('cheerio')
+
+  try {
+  	
+  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','')
+  const fembed_axios_req = await axios.post(`https://fembed-hd.com/api/source/${fembed_id}`,{
+    headers : {
+  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+  'X-Requested-With':'XMLHttpRequest'
+    }	
+    })
+  const fembed_link = await fembed_axios_req.data
+  
+  const encrypt_id = btoa(data.videoId)
+  const anime_id = btoa(`${data.videoId}LTXs3GrU8we9O${encrypt_id}`)
+
+  const animixplay_send_req = await axios(`https://animixplay.to/api/live${anime_id}`,{
+    headers : {
+  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'
+    }	
+   })
+
+  const animixplay_link = atob(animixplay_send_req.request.res.responseUrl.split("#")[1])
+
+  return { fembed_link, animixplay_link }
+
+  } catch (e) {
+    return false
+  }
+} 
+
+async function get_anime (res,id,ep){
   const axios = require('axios')
   const cheerio = require('cheerio')
 
@@ -41,13 +73,43 @@
     const download_link = $('div.favorites_book').find('ul').find('.dowloads').find('a').attr('href')
    
 
-  //send_fetch_req = await axios(download_link,{headers:header})
-  //fetch_raw_html = await send_fetch_req.data
- 
-//  $ = cheerio.load(fetch_raw_html)
+  send_fetch_req = await axios(iframeLink,{headers:header})
+  fetch_raw_html = await send_fetch_req.data
+  $ = cheerio.load(fetch_raw_html)
 
+  const container_value = $('body').attr('class').replace('container-','')
+  const wrapper_container_value = $('div.wrapper').attr('class').replace('wrapper container-','')
+  const videocontent_value = $('div.videocontent').attr('class').replace('videocontent videocontent-','')
+  const data_value = $('script[data-name="episode"]').attr('data-value').replace('=','')
+
+  const videoId = iframeLink.replace('https://goload.io/streaming.php?id=','').replace(/\=\=\&title.*/,'') 
+
+    const links = []
+
+    $('li[data-status="1"]').each(function(){
+	const link = $(this).attr('data-video')
+      	links.push({
+	 link
+      	})
+    })
+
+    const cipher_data = {
+      container_value,
+      wrapper_container_value,
+      videocontent_value,
+      data_value,
+      links,
+      videoId
+    }
   
+    let video_links = await decipherLinks(cipher_data)
 
+
+    if(video_links == false){
+      video_links = {message:'Not Available'}
+    } else {
+      video_links = video_links
+    }
 
     res.status(200).json({
       title,
@@ -59,7 +121,8 @@
       anime_status,
       total_ep,
       requested_episode,
-      iframeLink
+      iframeLink,
+      video_links
     })
   
   } catch (error) {

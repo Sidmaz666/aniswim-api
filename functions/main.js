@@ -2,9 +2,8 @@
   const { exec } = require("child_process");
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const cdn_url = "https://goload.pro/encrypt-ajax.php"
 
-  const anime_url = `https://ww3.gogoanime2.org/anime/${id}`
+  const anime_url = `https://gogoanime.lu/category/${id}`
    
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -20,15 +19,16 @@
    
    const requested_episode = ep
    const title = $('div.anime_info_body_bg').find('h1').text()
-   let anime_type = $('div.anime_info_body_bg').find('h1').next().text().replace('Type: ', '').replaceAll('\n','').trim()
-   const genre = $('div.anime_info_body_bg').find('h1').next().next().next().text().replace('Genre: ', '').replaceAll(' ','').replaceAll('\n','')
-    const released_year = $('div.anime_info_body_bg').find('h1').next().next().next().next().text().replace('Released: ', '').replaceAll(' ','').replaceAll('\n','')
+   let anime_type = $('div.anime_info_body_bg').find('h1').next().next().text().replace('Type: ', '').replaceAll('\n','').trim()
+   const genre = $('div.anime_info_body_bg').find('h1').next().next().next().next().text().replace('Genre: ', '').replaceAll(' ','').replaceAll('\n','').replaceAll('\t','')
+
+   const released_year = $('div.anime_info_body_bg').find('h1').next().next().next().next().next().text().replace('Released: ', '').replaceAll(' ','').replaceAll('\n','')
 
    const anime_status =  $('div.anime_info_body_bg').find('p').last().prev().text().replace('Status: ', '').replaceAll('\n','').replaceAll(' ','')
    const other_name =  $('div.anime_info_body_bg').find('p').last().text().replace('Other name:', '').replaceAll('\n','').replaceAll(' ','') || 'Not-Mentioned'
 
-   const description =  $('div.anime_info_body_bg').find('h1').next().next().text().replace('Plot Summary: ', '')
-   const total_ep =  $('div#load_ep').find('ul#episode_related li').length.toString()
+   const description =  $('div.anime_info_body_bg').find('h1').next().next().next().text().replace('Plot Summary: ', '')
+   const total_ep =  $('ul#episode_page li').last().find('a').attr('ep_end').toString()
 
    const anime_watch_url = `https://gogoanime.lu/${id}-episode-${ep}`
 
@@ -72,7 +72,7 @@
 async function search_anime(res,query,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://ww3.gogoanime2.org/search/${query}/${page || 1}`
+  const search_url = `https://gogoanime.lu/search.html?keyword=${query}&page=${page || 1}`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -100,8 +100,8 @@ async function search_anime(res,query,page){
     $('.items > li').each(function(){
       const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/anime/','')
-      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
+      const animeID = link.replace('/category/','')
+      const thumbnail = thumb_arr[count]
       anime.push({
 	title,
 	animeID,
@@ -121,7 +121,7 @@ async function search_anime(res,query,page){
 async function latest_anime(res,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://ww3.gogoanime2.org/new-season/${page || 1}`
+  const search_url = `https://gogoanime.lu/new-season.html?page=${page || 1}`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -149,8 +149,8 @@ async function latest_anime(res,page){
     $('.items > li').each(function(){
       const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/anime/','')
-      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
+      const animeID = link.replace('/category/','')
+      const thumbnail =  thumb_arr[count]
       anime.push({
 	title,
 	animeID,
@@ -170,7 +170,7 @@ async function latest_anime(res,page){
 async function popular_anime(res,page){
   const axios = require('axios')
   const cheerio = require('cheerio')
-  const search_url = `https://ww3.gogoanime2.org/popular/${page || 1 }`
+  const search_url = `https://gogoanime.lu/popular.html?page=${page || 1 }`
   const header =  {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
@@ -198,8 +198,8 @@ async function popular_anime(res,page){
     $('.items > li').each(function(){
       const title = $(this).find('a').attr('title')
       const link = $(this).find('a').attr('href')
-      const animeID = link.replace('/anime/','')
-      const thumbnail = "https://ww3.gogoanime2.org" + thumb_arr[count]
+      const animeID = link.replace('/category/','')
+      const thumbnail =  thumb_arr[count]
       anime.push({
 	title,
 	animeID,

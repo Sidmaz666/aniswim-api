@@ -13,6 +13,7 @@ Run Locally - `npm run start ` or `node index.js`
 1. `/` - List of popular Anime with animeID
 2. `/anime?id=` - Get Anime Detail and Video Links with `animeID`
 3. `/search?q=` - Search Anime get animeID
+4. `/latest` - Get Latest Anime List
 
 ## URL Query Parameters
 

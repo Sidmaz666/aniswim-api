@@ -19,7 +19,7 @@ Run Locally - `npm run start ` or `node index.js`
 
 1. `page` - Go to <b>n</b> number of pages.
 2.  `q` - For Search
-3. `id` - For animeID
+3. `id` - For animeID & `ep` - To request a particular Episode
 
 ### Example
 		
@@ -135,7 +135,7 @@ Run Locally - `npm run start ` or `node index.js`
 
 
 		      GET:
-		      url: "https://aniswim-api.herokuapp.com/anime?id=100-man-no-inochi-no-ue-ni-ore-wa-tatteiru-2nd-season-episode-1"
+		      url: "https://aniswim-api.herokuapp.com/anime?id=100-man-no-inochi-no-ue-ni-ore-wa-tatteiru&ep=2"
 		      response :[
 	    {
 	      "title": "100-man no Inochi no Ue ni Ore wa Tatteiru 2nd Season (2021)",

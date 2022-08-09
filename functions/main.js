@@ -4,7 +4,7 @@ async function decipherLinks(data){
 
   try {
   	
-  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
+  //const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
   
   const encrypt_id = btoa(data.videoId)
   const anime_id = btoa(`${data.videoId}LTXs3GrU8we9O${encrypt_id}`)
@@ -15,12 +15,43 @@ async function decipherLinks(data){
     }	
    })
 
-  const animixplay_link = atob(animixplay_send_req.request.res.responseUrl.split("#")[1])
+    const main_link = atob(animixplay_send_req.request.res.responseUrl.split("#")[1])
 
-  return { fembed_id , animixplay_link }
 
-  } catch (e) {
-    return false
+    const get_animixplay_manifest = await axios(main_link,{
+    headers : {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+      'Referer' : data.links[0].link,
+    }	
+
+    })
+
+    const animixplay_manifest_d = await get_animixplay_manifest.data
+    const animixplay_manifest = animixplay_manifest_d.replace(/\#.*\n/g,'').replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, "").split('\n')
+
+
+    const base_url = main_link.replace(/\/ep.*/, '').replace(/\.com.*/,'.com') + '/'
+    const available_links = []
+
+    Array.from(animixplay_manifest).map((e,i) => {
+      		let quality = e.split('.')[3] 
+      
+		if(!quality){
+		  quality = animixplay_manifest_d.match(/\#EXT\-X\-STREAM\-INF.*/g)[i].replace(/\#EXT.*RESOLUTION\=/,'').split('x')[1]
+	      	}
+
+        	const url = base_url + e
+      		available_links.push({
+			url,
+		  	quality
+     	 	})
+    })
+
+
+    return { main_link , available_links }
+
+  } catch (error) {
+    return { error } 
   }
 } 
 
@@ -75,7 +106,7 @@ async function get_anime (res,id,ep){
   const videocontent_value = $('div.videocontent').attr('class').replace('videocontent videocontent-','')
   const data_value = $('script[data-name="episode"]').attr('data-value').replace('=','')
 
-  const videoId = iframeLink.replace('https://goload.io/streaming.php?id=','').replace(/\=\=\&title.*/,'') 
+  const videoId = iframeLink.replace('https://goload.io/streaming.php?id=','').replace(/\=\&title.*/,'') 
 
     const links = []
 
@@ -96,13 +127,6 @@ async function get_anime (res,id,ep){
     }
   
     let video_links = await decipherLinks(cipher_data)
-
-
-    if(video_links == false){
-      video_links = {message:'Not Available'}
-    } else {
-      video_links = video_links
-    }
 
     res.status(200).json({
       title,

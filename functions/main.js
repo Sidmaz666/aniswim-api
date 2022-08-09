@@ -4,14 +4,7 @@ async function decipherLinks(data){
 
   try {
   	
-  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','')
-  const fembed_axios_req = await axios.post(`https://fembed-hd.com/api/source/${fembed_id}`,{
-    headers : {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
-  'X-Requested-With':'XMLHttpRequest'
-    }	
-    })
-  const fembed_link = await fembed_axios_req.data
+  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
   
   const encrypt_id = btoa(data.videoId)
   const anime_id = btoa(`${data.videoId}LTXs3GrU8we9O${encrypt_id}`)
@@ -24,7 +17,7 @@ async function decipherLinks(data){
 
   const animixplay_link = atob(animixplay_send_req.request.res.responseUrl.split("#")[1])
 
-  return { fembed_link, animixplay_link }
+  return { fembed_id , animixplay_link }
 
   } catch (e) {
     return false

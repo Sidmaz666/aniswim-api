@@ -4,7 +4,7 @@ async function decipherLinks(data){
 
   try {
   	
-  //const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
+  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
   
   const encrypt_id = btoa(data.videoId)
   const anime_id = btoa(`${data.videoId}LTXs3GrU8we9O${encrypt_id}`)
@@ -48,7 +48,7 @@ async function decipherLinks(data){
     })
 
 
-    return { main_link , available_links }
+    return { main_link , fembed_id, available_links }
 
   } catch (error) {
     return { error } 

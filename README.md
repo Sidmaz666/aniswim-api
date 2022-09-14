@@ -200,6 +200,3 @@ Run Locally - `npm run start ` or `node index.js`
 
 
 
-# Note
-
-`Video Links Not Available!`

@@ -106,7 +106,7 @@ async function get_anime (res,id,ep){
   const videocontent_value = $('div.videocontent').attr('class').replace('videocontent videocontent-','')
   const data_value = $('script[data-name="episode"]').attr('data-value').replace('=','')
 
-  const videoId = iframeLink.replace('https://goload.io/streaming.php?id=','').replace(/\=\&title.*/,'') 
+  const videoId = iframeLink.replace('https://gogohd.net/streaming.php?id=','').replace(/\=\&title.*/,'') 
 
     const links = []
 

@@ -196,7 +196,7 @@ Run Locally - `npm run start ` or `node index.js`
 
 ### <a src="https://aniswim-api.herokuapp.com/">Live Demo</a>
 
-<a href="https://aniswim-api.herokuapp.com/">Live Link</a> - Get the list of top/popular Anime.
+<a href="https://aniswim-api.vercel.app/">Live Link</a> - Get the list of top/popular Anime.
 
 
 

@@ -208,7 +208,8 @@ async function get_anime(res, id, ep) {
       total_ep,
       requested_episode,
       iframeLink,
-      video_links
+      video_links,
+      decrypt_data
     });
   } catch (error) {
     //get_anime(res, id)

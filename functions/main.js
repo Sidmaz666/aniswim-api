@@ -2,12 +2,14 @@ async function getFileDetails(main_link, referer) {
   const axios = require("axios");
   const cheerio = require("cheerio");
 
+  const url = new URL(main_link)
+
   try {
-    const get_animixplay_manifest = await axios(main_link, {
+    const get_animixplay_manifest = await axios(url.href, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-        Referer: referer,
+        "Referer": referer,
       },
     });
 
@@ -190,10 +192,9 @@ async function get_anime(res, id, ep) {
 
     const decrypt_data = JSON.parse(decrypted);
 
-    let sourceFile = "";
     const video_links = [];
 
-    sourceFile = decrypt_data.source[0].file;
+    const sourceFile = decrypt_data.source[0].file;
     const source = await getFileDetails(sourceFile, iframeLink.href);
     video_links.push(source);
 
@@ -208,8 +209,7 @@ async function get_anime(res, id, ep) {
       total_ep,
       requested_episode,
       iframeLink,
-      video_links,
-    //  gogo_video_data :decrypt_data,
+      video_links
     });
   } catch (error) {
     //get_anime(res, id)

@@ -1,26 +1,25 @@
 async function getFileDetails(main_link, referer) {
   const axios = require("axios");
-  const cheerio = require("cheerio");
 
   const url = new URL(main_link)
 
   try {
     const get_animixplay_manifest = await axios(url.href, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-        "Referer": referer,
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+        "Referer": referer
       },
     });
 
     const animixplay_manifest_d = await get_animixplay_manifest.data;
+
     const animixplay_manifest = animixplay_manifest_d
       .replace(/\#.*\n/g, "")
       .replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, "")
       .split("\n");
 
-    const base_url =
-      main_link.replace(/\/ep.*/, "").replace(/\.com.*/, ".com") + "/";
+    const base_url = main_link.replace(/\/ep.*/, "").replace(/\.com.*/, ".com") + "/";
+    
     const available_links = [];
 
     Array.from(animixplay_manifest).map((e, i) => {
@@ -42,7 +41,7 @@ async function getFileDetails(main_link, referer) {
 
     return { main_link, available_links };
   } catch (error) {
-    return { error };
+    return { main_link };
   }
 }
 

@@ -193,7 +193,12 @@ async function get_anime(res, id, ep) {
 
     const video_links = [];
 
-    const sourceFile = decrypt_data.source[0].file;
+    let sourceFile = decrypt_data.source[0].file;
+    
+    if(sourceFile.includes('vipanicdn')){
+     sourceFile = decrypt_data.source_bk[0].file;
+    }
+
     const source = await getFileDetails(sourceFile, iframeLink.href);
     video_links.push(source);
 
@@ -209,7 +214,6 @@ async function get_anime(res, id, ep) {
       requested_episode,
       iframeLink,
       video_links,
-      decrypt_data
     });
   } catch (error) {
     //get_anime(res, id)

@@ -1,27 +1,12 @@
-async function decipherLinks(data){
+async function getFileDetails(main_link,referer){
   const axios = require('axios')
   const cheerio = require('cheerio')
 
   try {
-  	
-  const fembed_id = data.links[3].link.replace('https://fembed-hd.com/v/','').replace('https://mixdrop.co/e/','')
-  
-  const encrypt_id = btoa(data.videoId)
-  const anime_id = btoa(`${data.videoId}LTXs3GrU8we9O${encrypt_id}`)
-
-  const animixplay_send_req = await axios(`https://animixplay.to/api/live${anime_id}`,{
-    headers : {
-  'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'
-    }	
-   })
-
-    const main_link = atob(animixplay_send_req.request.res.responseUrl.split("#")[1])
-
-
     const get_animixplay_manifest = await axios(main_link,{
     headers : {
       'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
-      'Referer' : data.links[0].link,
+      'Referer' : referer,
     }	
 
     })
@@ -48,7 +33,7 @@ async function decipherLinks(data){
     })
 
 
-    return { main_link , fembed_id, available_links }
+    return { main_link , available_links }
 
   } catch (error) {
     return { error } 
@@ -58,6 +43,7 @@ async function decipherLinks(data){
 async function get_anime (res,id,ep){
   const axios = require('axios')
   const cheerio = require('cheerio')
+  const CryptoJS = require('crypto-js')
 
   const anime_url = `https://gogoanime.lu/category/${id}`
    
@@ -93,40 +79,75 @@ async function get_anime (res,id,ep){
 	
     $ = cheerio.load(fetch_raw_html)
 
-    const iframeLink = "https:" + $('div.play-video').find('iframe').attr('src')
-    const download_link = $('div.favorites_book').find('ul').find('.dowloads').find('a').attr('href')
-   
 
-  send_fetch_req = await axios(iframeLink,{headers:header})
-  fetch_raw_html = await send_fetch_req.data
-  $ = cheerio.load(fetch_raw_html)
+    const iframeLink = new URL("https:" + $('div.play-video').find('iframe').attr('src'))
 
-  const container_value = $('body').attr('class').replace('container-','')
-  const wrapper_container_value = $('div.wrapper').attr('class').replace('wrapper container-','')
-  const videocontent_value = $('div.videocontent').attr('class').replace('videocontent videocontent-','')
-  const data_value = $('script[data-name="episode"]').attr('data-value').replace('=','')
 
-  const videoId = iframeLink.replace('https://gogohd.net/streaming.php?id=','').replace(/\=\&title.*/,'') 
 
-    const links = []
+    const fetchGogoServerPage = await axios(iframeLink.href,
+      {headers:header}
+    )
 
-    $('li[data-status="1"]').each(function(){
-	const link = $(this).attr('data-video')
-      	links.push({
-	 link
-      	})
-    })
+    $ = cheerio.load(await fetchGogoServerPage.data)
 
-    const cipher_data = {
-      container_value,
-      wrapper_container_value,
-      videocontent_value,
-      data_value,
-      links,
-      videoId
-    }
+    const keys = {
+    key: CryptoJS.enc.Utf8.parse('37911490979715163134003223491201'),
+    second_key: CryptoJS.enc.Utf8.parse('54674138327930866480207815084989'),
+    iv: CryptoJS.enc.Utf8.parse('3134003223491201'),
+}
+
+    const videoId = iframeLink.searchParams.get('id')
+    
+
+    const encrypted_key = CryptoJS.AES['encrypt'](videoId, keys.key, {
+        iv: keys.iv,
+    });
+
+    const script = $("script[data-name='episode']").data().value;
+    const token = CryptoJS.AES['decrypt'](script, keys.key, {
+        iv: keys.iv,
+    }).toString(CryptoJS.enc.Utf8);
+
+    const encrypt_ajax = 'id=' + encrypted_key + '&alias=' + videoId + '&' + token;
+
+   const fetchGogoRes = await axios.get(
+            `
+        ${iframeLink.protocol}//${iframeLink.hostname}/encrypt-ajax.php?${encrypt_ajax}`, {
+                headers: {
+		    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            }
+        )
+
+  const decrypted = CryptoJS.enc.Utf8.stringify(
+        CryptoJS.AES.decrypt(fetchGogoRes.data.data, keys.second_key, {
+            iv: keys.iv,
+        })
+    );
+
+    const decrypt_data =  JSON.parse(decrypted)
+
+let sourceFile = ''
+let source_bkFile = ''
+let track = ''
+
+if(decrypt_data.source || decrypt_data.source_bk){
+
+    sourceFile = decrypt_data.source[0].file
+    source_bkFile = decrypt_data.source_bk[0].file
+    if(decrypt_data.track)
+    track = decrypt_data.track.tracks[0].file
+} 
+
+
+    const video_links = []
+
+    const source = await getFileDetails(sourceFile, iframeLink.href)
+    const sourcebk = await getFileDetails(source_bkFile, iframeLink.href)
+
+    video_links.push(source,sourcebk)
   
-    let video_links = await decipherLinks(cipher_data)
 
     res.status(200).json({
       title,
@@ -139,7 +160,8 @@ async function get_anime (res,id,ep){
       total_ep,
       requested_episode,
       iframeLink,
-      video_links
+      video_links,
+      track
     })
   
   } catch (error) {

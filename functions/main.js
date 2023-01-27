@@ -50,7 +50,7 @@ async function get_anime(res, id, ep) {
   const cheerio = require("cheerio");
   const CryptoJS = require("crypto-js");
 
-  const anime_url = `https://www1.gogoanime.bid/category/${id}`;
+  const anime_url = `https://gogoanime.lu/category/${id}`;
 
   const header = {
     Accept:
@@ -134,7 +134,7 @@ async function get_anime(res, id, ep) {
       .attr("ep_end")
       .toString();
 
-    const anime_watch_url = `https://www1.gogoanime.bid/${id}-episode-${ep}`;
+    const anime_watch_url = `https://gogoanime.lu/${id}-episode-${ep}`;
 
     send_fetch_req = await axios(anime_watch_url, { headers: header });
     fetch_raw_html = await send_fetch_req.data;
@@ -151,10 +151,24 @@ async function get_anime(res, id, ep) {
 
     $ = cheerio.load(await fetchGogoServerPage.data);
 
+  const container_value = $('body').attr('class').replace('container-','')
+  const wrapper_container_value = $('div.wrapper').attr('class').replace('wrapper container-','')
+  const videocontent_value = $('div.videocontent').attr('class').replace('videocontent videocontent-','')
+  const data_value = $('script[data-name="episode"]').attr('data-value').replace('=','')
+
+    const links = []
+
+    $('li[data-status="1"]').each(function(){
+	const link = $(this).attr('data-video')
+      	links.push({
+	 link
+      	})
+    })
+
     const keys = {
-      key: CryptoJS.enc.Utf8.parse("37911490979715163134003223491201"),
-      second_key: CryptoJS.enc.Utf8.parse("54674138327930866480207815084989"),
-      iv: CryptoJS.enc.Utf8.parse("3134003223491201"),
+      key: CryptoJS.enc.Utf8.parse(container_value),
+      second_key: CryptoJS.enc.Utf8.parse(videocontent_value),
+      iv: CryptoJS.enc.Utf8.parse(wrapper_container_value),
     };
 
     const videoId = iframeLink.searchParams.get("id");
@@ -163,8 +177,7 @@ async function get_anime(res, id, ep) {
       iv: keys.iv,
     });
 
-    const script = $("script[data-name='episode']").data().value;
-    const token = CryptoJS.AES["decrypt"](script, keys.key, {
+    const token = CryptoJS.AES["decrypt"](data_value, keys.key, {
       iv: keys.iv,
     }).toString(CryptoJS.enc.Utf8);
 
@@ -178,6 +191,7 @@ async function get_anime(res, id, ep) {
         headers: {
           "User-Agent":
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+	  Referer:  `https://gogoanime.lu/${id}-episode-${ep}`,
           "X-Requested-With": "XMLHttpRequest",
         },
       }
@@ -193,13 +207,9 @@ async function get_anime(res, id, ep) {
 
     const video_links = [];
 
-    let sourceFile = decrypt_data.source[0].file;
-    
-    if(sourceFile.includes('vipanicdn')){
-     sourceFile = decrypt_data.source_bk[0].file;
-    }
+    let sourceFile = decrypt_data.source[0].file ? decrypt_data.source[0].file : decrypt_data.source_bk[0].file;
 
-    const source = await getFileDetails(sourceFile, iframeLink.href);
+    const source = await getFileDetails(sourceFile, links[0].link);
     video_links.push(source);
 
     res.status(200).json({
@@ -214,6 +224,7 @@ async function get_anime(res, id, ep) {
       requested_episode,
       iframeLink,
       video_links,
+      streamLinks : links
     });
   } catch (error) {
     //get_anime(res, id)

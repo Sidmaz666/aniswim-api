@@ -19,7 +19,10 @@ async function getFileDetails(main_link, referer) {
       .replace(/^(?=\n)$|^\s*|\s*$|\n\n+/gm, "")
       .split("\n");
 
-    const base_url = main_link.replace(/\/ep.*/, "").replace(/\.com.*/, ".com") + "/";
+
+    const base_url = main_link.replace(/\/ep.*/, "") + "/";
+
+    console.log(base_url)
     
     const available_links = [];
 

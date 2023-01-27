@@ -7,7 +7,8 @@ async function getFileDetails(main_link, referer) {
     const get_animixplay_manifest = await axios(url.href, {
       headers: {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-        "Referer": referer
+        "Referer": referer,
+        "X-Requested-With": "XMLHttpRequest",
       },
     });
 
@@ -207,7 +208,11 @@ async function get_anime(res, id, ep) {
 
     const video_links = [];
 
-    let sourceFile = decrypt_data.source[0].file ? decrypt_data.source[0].file : decrypt_data.source_bk[0].file;
+    let sourceFile = decrypt_data.source[0].file 
+
+    if(sourceFile.includes('vipanicdn')){
+      sourceFile = decrypt_data.source_bk[0].file;
+    }
 
     const source = await getFileDetails(sourceFile, links[0].link);
     video_links.push(source);

@@ -30,6 +30,7 @@ server.get('/latest', (req,res) => {
   ani.latest_anime(res, page)
 })
 
+
 server.use(function(req,res){
   	res.status(404).json({ message : "Error 404" })
 })

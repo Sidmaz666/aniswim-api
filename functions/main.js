@@ -91,7 +91,6 @@ async function get_anime(res, id, ep) {
     
     send_fetch_req = await axios.get(
       consumenet_url,
-      {headers:header}
     )
 
     const consumenet_stream_links = await send_fetch_req.data

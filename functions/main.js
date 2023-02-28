@@ -87,7 +87,7 @@ async function get_anime(res, id, ep) {
       .attr("ep_end")
       .toString();
 
-    const consumenet_url = `https://api.consumet.org/anime/gogoanime/watch/${id}-episode-${ep}`
+    const consumenet_url = `https://cors.consumet.stream/https://api.consumet.org/anime/gogoanime/watch/${id}-episode-${ep}`
     
     send_fetch_req = await axios.get(
       consumenet_url,

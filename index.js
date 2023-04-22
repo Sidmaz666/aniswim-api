@@ -12,7 +12,8 @@ const port = process.env.PORT || 3020
 
 let proxy = corsAnywhere.createServer({
   originWhitelist: [], // Allow all origins
-  requireHeaders: [], // Do not require any headers.
+  // Do not require any headers.
+  requireHeaders: ['origin','x-requested-with'],
   removeHeaders: [] // Do not remove any headers.
 });
 

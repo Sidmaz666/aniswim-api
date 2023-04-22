@@ -19,7 +19,7 @@ let proxy = corsAnywhere.createServer({
 
 /* Attach our cors proxy to the existing API on the /proxy endpoint. */
 server.get('/proxy/:proxyUrl*', (req, res) => {
-  req.url = req.url.replace(/.*\/proxy\//g, '/'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
+  req.url = req.url.replace(/.*\/proxy\//g, ''); // Strip '/proxy' from the front of the URL, else the proxy won't work.
   proxy.emit('request', req, res);
 });
 

@@ -1,12 +1,26 @@
 const express = require('express'); 
 const ani = require('./functions/main')
 const cors = require('cors')
+const corsAnywhere = require('cors-anywhere');
+
 
 const server = express()
 
 server.use(cors())
 
 const port = process.env.PORT || 3020 
+
+let proxy = corsAnywhere.createServer({
+  originWhitelist: [], // Allow all origins
+  requireHeaders: [], // Do not require any headers.
+  removeHeaders: [] // Do not remove any headers.
+});
+
+/* Attach our cors proxy to the existing API on the /proxy endpoint. */
+server.get('/proxy/:proxyUrl*', (req, res) => {
+  req.url = req.url.replace('/proxy/', '/'); // Strip '/proxy' from the front of the URL, else the proxy won't work.
+  proxy.emit('request', req, res);
+});
 
 server.get('/', (req,res) => {
   const page = req.query.page || 1
@@ -29,6 +43,7 @@ server.get('/latest', (req,res) => {
   const page = req.query.page || 1
   ani.latest_anime(res, page)
 })
+
 
 
 server.use(function(req,res){

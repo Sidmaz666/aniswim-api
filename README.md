@@ -14,187 +14,92 @@ Run Locally - `npm run start ` or `node index.js`
 2. `/anime?id=` - Get Anime Detail and Video Links with `animeID`
 3. `/search?q=` - Search Anime get animeID
 4. `/latest` - Get Latest Anime List
+5. `/movies` - Get Anime Movies List
+6. `/genre` - List of Genres
+7. `/genre/{genre_name}` - Get Anime List Based on Genre
+8. `/thumbnail/{animeID}` - Get Thumbnail of a Particular Anime
+9. `/anime-list` - Get List of Anime
+
 
 ## URL Query Parameters
 
 1. `page` - Go to <b>n</b> number of pages.
 2.  `q` - For Search
 3. `id` - For animeID & `ep` - To request a particular Episode
+4. `list` - `/anime-list` Define List type Numerically or Alphabatically
 
 ### Example
-		
-		/search?q=one+piece&page=2
 
-		/?page=2
+```
+/search?q=one+piece&page=2
+/?page=2
+/anime?id=one-piece
+/search?q=one-piece
+/movies?page=2
+/genre
+/genre/action
+/anime-list?list=z
+/thumbnail/one-piece
+```
 
-## Usage
-		GET:
-		url: "https://aniswim-api.herokuapp.com/?page=2"
-		response: [
-  	{
-    "title": "100-man no Inochi no Ue ni Ore wa Tatteiru 2nd Season",
-    "animeID": "100-man-no-inochi-no-ue-ni-ore-wa-tatteiru-2nd-season-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/100-man-no-inochi-no-ue-ni-ore-wa-tatteiru-2nd-season.png"
-  	},
-  	{
-    "title": "Go! Princess Precure",
-    "animeID": "go-princess-precure-episode-1",
-    "thumbnail": "https://gogocdn.net/images/upload/Go!.Princess.Precure.full.1812487.jpg"
-  	},
-  	{
-    "title": "Arifureta Shokugyou de Sekai Saikyou",
-    "animeID": "arifureta-shokugyou-de-sekai-saikyou-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/arifureta-shokugyou-de-sekai-saikyou.png"
-  	},
-  	{
-    "title": "Log Horizon: Entaku Houkai",
-    "animeID": "log-horizon-entaku-houkai-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/log-horizon-entaku-houkai.png"
-  	},
-  	{
-    "title": "Jahy-sama wa Kujikenai!",
-    "animeID": "jahy-sama-wa-kujikenai-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/jahy-sama-wa-kujikenai.png"
-  	},
-  	{
-    "title": "Mushoku Tensei: Isekai Ittara Honki Dasu",
-    "animeID": "mushoku-tensei-isekai-ittara-honki-dasu-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/mushoku-tensei-isekai-ittara-honki-dasu.png"
-  	},
-  	{
-    "title": "Dr. Stone",
-    "animeID": "dr-stone-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/dr-stone.png"
-  	},
-  	{
-    "title": "Nanatsu no Taizai: Fundo no Shinpan",
-    "animeID": "nanatsu-no-taizai-fundo-no-shinpan-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/nanatsu-no-taizai-fundo-no-shinpan.png"
-  	},
-  	{
-    "title": "Genjitsu Shugi Yuusha no Oukoku Saikenki",
-    "animeID": "genjitsu-shugi-yuusha-no-oukoku-saikenki-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/genjitsu-shugi-yuusha-no-oukoku-saikenki.png"
-  	},
-  	{
-    "title": "Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka II",
-    "animeID": "dungeon-ni-deai-wo-motomeru-no-wa-machigatteiru-darou-ka-ii-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/dungeon-ni-deai-wo-motomeru-no-wa-machigatteiru-darou-ka-ii.png"
-  	},
-  	{
-    "title": "Enen no Shouboutai",
-    "animeID": "enen-no-shouboutai-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/enen-no-shouboutai.png"
-  	},
-  	{
-    "title": "Re:Zero kara Hajimeru Isekai Seikatsu 2nd Season Part 2",
-    "animeID": "rezero-kara-hajimeru-isekai-seikatsu-2nd-season-part-2-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/rezero-kara-hajimeru-isekai-seikatsu-2nd-season-part-2.png"
-  	},
-  	{
-    "title": "Karakai Jouzu no Takagi-san 2",
-    "animeID": "karakai-jouzu-no-takagi-san-2-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/karakai-jouzu-no-takagi-san-2.png"
-  	},
-  	{
-    "title": "Big Order (TV)",
-    "animeID": "big-order-tv-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/big-order-tv.jpg"
-  	},
-  	{
-    "title": "Katsute Kami Datta Kemono-tachi e",
-    "animeID": "katsute-kami-datta-kemono-tachi-e-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/katsute-kami-datta-kemono-tachi-e.png"
-  	},
- 	 {
-    "title": "Tensei shitara Slime Datta Ken 2nd Season",
-    "animeID": "tensei-shitara-slime-datta-ken-2nd-season-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/tensei-shitara-slime-datta-ken-2nd-season.png"
-  	},
-  	{
-    "title": "Boku no Hero Academia",
-    "animeID": "boku-no-hero-academia-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/boku-no-hero-academia.jpg"
-  	},
-  	{
-    "title": "Lord El-Melloi II Sei no Jikenbo: Rail Zeppelin Grace Note",
-    "animeID": "lord-el-melloi-ii-sei-no-jikenbo-rail-zeppelin-grace-note-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/lord-el-melloi-ii-sei-no-jikenbo-rail-zeppelin-grace-note.png"
-  	},
-  	{
-    "title": "Bungou Stray Dogs",
-    "animeID": "bungou-stray-dogs-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/bungou-stray-dogs.jpg"
-  	},
-  	{
-    "title": "Endride",
-    "animeID": "endride-episode-1",
-    "thumbnail": "https://gogocdn.net/cover/endride.jpg"
- 	 }	
-	]
+### Expected Response
 
+```
+URL : http://localhost:3020/anime?id=one-piece
 
-		      GET:
-		      url: "https://aniswim-api.herokuapp.com/anime?id=100-man-no-inochi-no-ue-ni-ore-wa-tatteiru&ep=2"
-		      response :[
-	    {
-	      "title": "100-man no Inochi no Ue ni Ore wa Tatteiru 2nd Season (2021)",
-	      "total_ep": "12",
-	      "anime_status": "Completed",
-	      "description": "Second season of 100-man no Inochi no Ue ni Ore wa Tatteiru.",
-	      "iframeLink": "https://gogoplay.io/streaming.php?id=MTY1MDAy&title=100-man+no+Inochi+no+Ue+ni+Ore+wa+Tatteiru+2nd+Season+Episode+1",
-	      "videoID": "MTY1MDAy",
-	      "video_links": {
-		"source": [
-		  {
-		    "file": "https://vidstreamingcdn.com/cdn29/c083ad3ac53b6885e7fc1b41859b1951/EP.1.v0.1639380621.360p.mp4?mac=RuvWRIQD%2Bazn4cNz02qtVN2kynTOAtGnbtjM%2FccofKg%3D&vip=44.201.26.53&expiry=1645643201752",
-		    "label": "360 P",
-		    "type": "mp4"
-		  },
-		  {
-		    "file": "https://vidstreamingcdn.com/cdn29/c083ad3ac53b6885e7fc1b41859b1951/EP.1.v0.1639380621.480p.mp4?mac=08QgE2K3Hmsr6p%2FzAG6PbwYmj0A96uiXtkT1veAnQlY%3D&vip=44.201.26.53&expiry=1645643201807",
-		    "label": "480 P",
-		    "type": "mp4"
-		  },
-		  {
-		    "file": "https://vidstreamingcdn.com/cdn29/c083ad3ac53b6885e7fc1b41859b1951/EP.1.v0.1639380621.720p.mp4?mac=W7cDNxnR6zrSYjMCTNO%2FqoRigt8Q4t0oME0FZ0nEKso%3D&vip=44.201.26.53&expiry=1645643201864",
-		    "label": "720 P",
-		    "type": "mp4"
-		  },
-		  {
-		    "file": "https://vidstreamingcdn.com/cdn29/c083ad3ac53b6885e7fc1b41859b1951/EP.1.v0.1639380621.1080p.mp4?mac=hJoKbmeTAVmopoGx6HtLHTt%2BgO4KJd%2BXaCWz3cw%2Frdk%3D&vip=44.201.26.53&expiry=1645643202126",
-		    "label": "1080 P",
-		    "type": "mp4"
-		  },
-		  {
-		    "file": "https://vidstreamingcdn.com/cdn29/c083ad3ac53b6885e7fc1b41859b1951/EP.1.v0.1639380621.720p.mp4?mac=W7cDNxnR6zrSYjMCTNO%2FqoRigt8Q4t0oME0FZ0nEKso%3D&vip=44.201.26.53&expiry=1645643201864",
-		    "label": "Auto",
-		    "default": "true",
-		    "type": "mp4"
-		  }
-		],
-		"source_bk": [
-		  {
-		    "file": "https://www03.gogocdn.stream/videos/hls/_evHz25fKpD08_82S2cOpQ/1645650477/165002/e96754ea0bddca9b04ddadd74cbce9fa/ep.1.1645587374.m3u8",
-		    "label": "hls P",
-		    "type": "hls"
-		  }
-		],
-		"track": {
-		  "tracks": [
-		    {
-		      "file": "https://cache.anicdn.stream/images/c083ad3ac53b6885e7fc1b41859b1951/1.vtt",
-		      "kind": "thumbnails"
-		    }
-		  ]
-		},
-		"advertising": [],
-		"linkiframe": "https://sbplay2.com/e/s3ixfzd2l0qy"
-	      }
-	    }
-	  ]
+{
+  "title": "One Piece",
+  "anime_type": "TV Series",
+  "genre": "Action,Adventure,Comedy,Fantasy,Shounen,SuperPower",
+  "released_year": "1999",
+  "description": "One Piece is a story about  Monkey D. Luffy, who wants to become a sea-robber. In a world mystical, there have a mystical fruit whom eat will have a special power but also have greatest weakness. Monkey ate Gum-Gum Fruit which gave him a strange power but he can NEVER swim. And this weakness made his dream become a sea – robber to find ultimate treasure is difficult.\n\nOne Piece is a story about  Monkey D. Luffy, who wants to become a sea-robber. In a world mystical, there have a mystical fruit whom eat will have a special power but also have greatest weakness. Monkey ate Gum-Gum Fruit which gave him a strange power but he can NEVER swim. And this weakness made his dream become a sea – robber to find ultimate treasure is difficult. But along his ways, he meet himself many members to help. Together, they sail the Seven Seas of adventure in search of the elusive treasure “One Piece.”",
+  "other_name": "Not-Mentioned",
+  "anime_status": "Ongoing",
+  "total_ep": "1059",
+  "requested_episode": 1,
+  "thumb": "https://gogocdn.net/images/anime/One-piece.jpg",
+  "iframeLink": "https://playtaku.net/streaming.php?id=MzUxOA==&title=One+Piece+Episode+1",
+  "video_links": Array[1][
+    {
+      "main_link": "https://ta-009.anewcdn.com/1ab5d45273a9183bebb58eb74d5722d8ea6384f350caf008f08cf018f1f0566d0cb82a2a799830d1af97cd3f4b6a9a81ef3aed2fb783292b1abcf1b8560a1d1aa308008b88420298522a9f761e5aa1024fbe74e5aa853cfc933cd1219327d1232e91847a185021b184c027f97ae732b3708ee6beb80ba5db6628ced43f1196fe/0b594d900f47daabc194844092384914/ep.1.1677592419.m3u8",
+      "available_links": Array[4][
+        {
+          "url": "https://ta-009.anewcdn.com/1ab5d45273a9183bebb58eb74d5722d8ea6384f350caf008f08cf018f1f0566d0cb82a2a799830d1af97cd3f4b6a9a81ef3aed2fb783292b1abcf1b8560a1d1aa308008b88420298522a9f761e5aa1024fbe74e5aa853cfc933cd1219327d1232e91847a185021b184c027f97ae732b3708ee6beb80ba5db6628ced43f1196fe/0b594d900f47daabc194844092384914/ep.1.1677592419.360.m3u8",
+          "quality": "360"
+        },
+        {
+          "url": "https://ta-009.anewcdn.com/1ab5d45273a9183bebb58eb74d5722d8ea6384f350caf008f08cf018f1f0566d0cb82a2a799830d1af97cd3f4b6a9a81ef3aed2fb783292b1abcf1b8560a1d1aa308008b88420298522a9f761e5aa1024fbe74e5aa853cfc933cd1219327d1232e91847a185021b184c027f97ae732b3708ee6beb80ba5db6628ced43f1196fe/0b594d900f47daabc194844092384914/ep.1.1677592419.480.m3u8",
+          "quality": "480"
+        },
+        {
+          "url": "https://ta-009.anewcdn.com/1ab5d45273a9183bebb58eb74d5722d8ea6384f350caf008f08cf018f1f0566d0cb82a2a799830d1af97cd3f4b6a9a81ef3aed2fb783292b1abcf1b8560a1d1aa308008b88420298522a9f761e5aa1024fbe74e5aa853cfc933cd1219327d1232e91847a185021b184c027f97ae732b3708ee6beb80ba5db6628ced43f1196fe/0b594d900f47daabc194844092384914/ep.1.1677592419.720.m3u8",
+          "quality": "720"
+        },
+        {
+          "url": "https://ta-009.anewcdn.com/1ab5d45273a9183bebb58eb74d5722d8ea6384f350caf008f08cf018f1f0566d0cb82a2a799830d1af97cd3f4b6a9a81ef3aed2fb783292b1abcf1b8560a1d1aa308008b88420298522a9f761e5aa1024fbe74e5aa853cfc933cd1219327d1232e91847a185021b184c027f97ae732b3708ee6beb80ba5db6628ced43f1196fe/0b594d900f47daabc194844092384914/ep.1.1677592419.1080.m3u8",
+          "quality": "1080"
+        }
+      ]
+    }
+  ],
+  "streamLinks": Array[4][
+    {
+      "link": "https://playtaku.net/embedplus?id=MzUxOA==&token=i2DXMix0juyfFCyHSvpVnQ&expires=1682502845"
+    },
+    {
+      "link": "https://sbone.pro/e/3pf7o29i349d"
+    },
+    {
+      "link": "https://dood.wf/e/8ol21m67ej3r"
+    },
+    {
+      "link": "https://fembed9hd.com/v/zdp-5sjx-g6dw77"
+    }
+  ]
+}
+```
 
-### <a src="https://aniswim-api.herokuapp.com/">Live Demo</a>
+### Live Demo
 
 <a href="https://aniswim-api.vercel.app/">Live Link</a> - Get the list of top/popular Anime.
 

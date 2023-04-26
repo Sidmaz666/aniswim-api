@@ -1,6 +1,8 @@
-async function getFileDetails(main_link, referer) {
-  const axios = require("axios");
+const axios = require("axios");
+const cheerio = require("cheerio");
+const CryptoJS = require("crypto-js");
 
+async function getFileDetails(main_link, referer) {
   const url = new URL(main_link)
 
   try {
@@ -22,7 +24,6 @@ async function getFileDetails(main_link, referer) {
 
     const base_url = main_link.replace(/\/ep.*/, "") + "/";
 
-    console.log(base_url)
     
     const available_links = [];
 
@@ -50,9 +51,6 @@ async function getFileDetails(main_link, referer) {
 }
 
 async function get_anime(res, id, ep) {
-  const axios = require("axios");
-  const cheerio = require("cheerio");
-  const CryptoJS = require("crypto-js");
 
   const anime_url = `https://gogoanime.lu/category/${id}`;
 
@@ -71,7 +69,13 @@ async function get_anime(res, id, ep) {
 
     const requested_episode = ep;
 
-    const title = $("div.anime_info_body_bg").find("h1").text();
+    let title = $("div.anime_info_body_bg").find("h1").text();
+
+    let thumb = $("div.anime_info_body_bg").find("img").attr('src')
+
+    if(title.length <= 0){
+	title = id.replaceAll('-',' ')
+      }
 
     let anime_type = $("div.anime_info_body_bg")
       .find("h1")
@@ -230,6 +234,7 @@ async function get_anime(res, id, ep) {
       anime_status,
       total_ep,
       requested_episode,
+      thumb,
       iframeLink,
       video_links,
       streamLinks : links
@@ -240,12 +245,7 @@ async function get_anime(res, id, ep) {
   }
 }
 
-async function search_anime(res, query, page) {
-  const axios = require("axios");
-  const cheerio = require("cheerio");
-  const search_url = `https://gogoanime.lu/search.html?keyword=${query}&page=${
-    page || 1
-  }`;
+async function Extractor(url){
   const header = {
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -253,8 +253,7 @@ async function search_anime(res, query, page) {
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
   };
 
-  try {
-    const send_search_request = await axios.get(search_url, {
+    const send_search_request = await axios.get(url, {
       headers: header,
     });
     const search_raw_html = send_search_request.data;
@@ -271,10 +270,13 @@ async function search_anime(res, query, page) {
     let count = 0;
 
     $(".items > li").each(function () {
-      const title = $(this).find("a").attr("title");
+      let title = $(this).find("a").attr("title");
       const link = $(this).find("a").attr("href");
       const animeID = link.replace("/category/", "");
       const thumbnail = thumb_arr[count];
+      if(title.length <= 0){
+	title = animeID.replaceAll('-',' ')
+      }
       anime.push({
         title,
         animeID,
@@ -283,6 +285,37 @@ async function search_anime(res, query, page) {
       count++;
     });
 
+  return anime
+
+}
+
+async function search_anime(res, query, page) {
+  const search_url = `https://gogoanime.lu/search.html?keyword=${query}&page=${
+    page || 1
+  }`;
+  try{
+    const anime = await Extractor(search_url)
+    res.status(200).json(anime);
+  } catch (error) {
+    res.status(200).json({ message: error });
+  }
+}
+
+async function genre(res, page,genre) {
+  const search_url = `https://gogoanime.lu/genre/${genre}?page=${page || 1}`;
+  try{
+    const anime = await Extractor(search_url)
+    res.status(200).json(anime);
+  } catch (error) {
+    res.status(200).json({ message: error });
+  }
+}
+
+
+async function movies(res, page) {
+  const search_url = `https://gogoanime.lu/anime-movies.html?page=${page || 1}`;
+  try{
+    const anime = await Extractor(search_url)
     res.status(200).json(anime);
   } catch (error) {
     res.status(200).json({ message: error });
@@ -290,46 +323,9 @@ async function search_anime(res, query, page) {
 }
 
 async function latest_anime(res, page) {
-  const axios = require("axios");
-  const cheerio = require("cheerio");
   const search_url = `https://gogoanime.lu/new-season.html?page=${page || 1}`;
-  const header = {
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "User-Agent":
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-  };
-
-  try {
-    const send_search_request = await axios.get(search_url, {
-      headers: header,
-    });
-    const search_raw_html = send_search_request.data;
-
-    const $ = cheerio.load(search_raw_html);
-
-    const anime = [];
-    const thumb_arr = [];
-    $(".items > li").each(function () {
-      const thumb = $(this).find("img").attr("src");
-      thumb_arr.push(thumb);
-    });
-
-    let count = 0;
-
-    $(".items > li").each(function () {
-      const title = $(this).find("a").attr("title");
-      const link = $(this).find("a").attr("href");
-      const animeID = link.replace("/category/", "");
-      const thumbnail = thumb_arr[count];
-      anime.push({
-        title,
-        animeID,
-        thumbnail,
-      });
-      count++;
-    });
-
+  try{
+    const anime = await Extractor(search_url)
     res.status(200).json(anime);
   } catch (error) {
     res.status(200).json({ message: error });
@@ -337,9 +333,33 @@ async function latest_anime(res, page) {
 }
 
 async function popular_anime(res, page) {
-  const axios = require("axios");
-  const cheerio = require("cheerio");
   const search_url = `https://gogoanime.lu/popular.html?page=${page || 1}`;
+  try{
+    const anime = await Extractor(search_url)
+    res.status(200).json(anime);
+  } catch (error) {
+    res.status(200).json({ message: error });
+  }
+}
+
+async function thumb(id){
+ const anime_url = `https://gogoanime.lu/category/${id}`;
+  const header = {
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "User-Agent":
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+  };
+    let send_fetch_req = await axios.get(anime_url, { headers: header });
+    let fetch_raw_html = send_fetch_req.data;
+    let $ = cheerio.load(fetch_raw_html);
+    const thumb = $("div.anime_info_body_bg").find("img").attr('src')
+    return thumb
+}
+
+
+async function anime_list(res,page,order){
+  const search_url = `https://gogoanime.lu/anime-list-${order}?page=${page || 1}`;
   const header = {
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -347,7 +367,6 @@ async function popular_anime(res, page) {
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
   };
 
-  try {
     const send_search_request = await axios.get(search_url, {
       headers: header,
     });
@@ -356,31 +375,21 @@ async function popular_anime(res, page) {
     const $ = cheerio.load(search_raw_html);
 
     const anime = [];
-    const thumb_arr = [];
-    $(".items > li").each(function () {
-      const thumb = $(this).find("img").attr("src");
-      thumb_arr.push(thumb);
-    });
-
-    let count = 0;
-
-    $(".items > li").each(function () {
-      const title = $(this).find("a").attr("title");
+    $("ul.listing > li").each(function () {
+      let title = $(this).find("a").text().trim();
       const link = $(this).find("a").attr("href");
       const animeID = link.replace("/category/", "");
-      const thumbnail = thumb_arr[count];
+      if(title.length <= 0){
+	title = animeID.replaceAll('-',' ')
+      }
       anime.push({
         title,
         animeID,
-        thumbnail,
       });
-      count++;
     });
 
-    res.status(200).json(anime);
-  } catch (error) {
-    res.status(200).json({ message: error });
-  }
+
+  res.json(anime)
 }
 
 module.exports = {
@@ -388,5 +397,9 @@ module.exports = {
   search_anime,
   popular_anime,
   latest_anime,
+  genre,
+  movies,
+  anime_list,
+  thumb
 };
 

@@ -1,7 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const CryptoJS = require("crypto-js");
-const m3u8Parser = require('m3u8-parser');
+const m3u8Stream = require('m3u8stream')
 
 async function getFileDetails(main_link, referer) {
   const url = new URL(main_link)
@@ -401,31 +401,18 @@ async function download(req,res){
   }
 
   try{
-      // Parse the m3u8 file to retrieve the segments
-    const response = await axios.get(url);
-    const parser = new m3u8Parser.Parser();
-    parser.push(response.data);
-    parser.end();
-    const playlist = parser.manifest;
-
-    // Collect the segments' URLs from the playlist
-    const segmentUrls = playlist.segments.map((segment) => url.replace(/ep.*/,'') + segment.uri);
-
     // Fetch and pipe the segments to the response
     res.setHeader('Content-Type', 'video/mp4');
     res.setHeader('Content-Disposition', `attachment; filename=${url.replace(/.*\/ep/g,'ep').replaceAll('.m3u8','')}.mp4`);
-
-    for (const urls of segmentUrls) {
-      const segmentResponse = await axios.get(urls, { responseType: 'stream' });
-      segmentResponse.data.pipe(res, { end: false });
-      await new Promise((resolve) => segmentResponse.data.on('end', resolve));
-    }
-
+    const stream = m3u8Stream(
+      url
+    )
+    stream.pipe(res,{ end:false })
+    await new Promise((resolve) => stream.on('end', resolve));
     res.end();
 
   } catch (error) {
     res.json({error: "Internal Server Error!"});
-    console.log(error)
   }
 }
 

@@ -172,9 +172,6 @@ server.get('/thumbnail/:id', async(req,res) => {
   	
 })
 
-server.get('/download', async (req, res) => {
-  ani.download(req,res)
-});
 
 server.use(function(req,res){
   	res.status(404).json({ message : "Error 404" })

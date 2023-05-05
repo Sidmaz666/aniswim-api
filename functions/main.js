@@ -1,7 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const CryptoJS = require("crypto-js");
-const m3u8Stream = require('m3u8stream')
 
 async function getFileDetails(main_link, referer) {
   const url = new URL(main_link)
@@ -224,6 +223,7 @@ async function get_anime(res, id, ep) {
 
     const source = await getFileDetails(sourceFile, links[0].link);
     video_links.push(source);
+    const download_link = iframeLink.replace('streaming.php','download')
 
     res.status(200).json({
       title,
@@ -237,6 +237,7 @@ async function get_anime(res, id, ep) {
       requested_episode,
       thumb,
       iframeLink,
+      download_link,
       video_links,
       streamLinks : links
     });
@@ -393,29 +394,6 @@ async function anime_list(res,page,order){
   res.json(anime)
 }
 
-async function download(req,res){
-   const { url } = req.query;
-
-  if (!url) {
-    return res.status(400).json({error:'Please provide a valid m3u8 URL'});
-  }
-
-  try{
-    // Fetch and pipe the segments to the response
-    res.setHeader('Content-Type', 'video/mp4');
-    res.setHeader('Content-Disposition', `attachment; filename=${url.replace(/.*\/ep/g,'ep').replaceAll('.m3u8','')}.mp4`);
-    const stream = m3u8Stream(
-      url
-    )
-    stream.pipe(res,{ end:false })
-    await new Promise((resolve) => stream.on('end', resolve));
-    res.end();
-
-  } catch (error) {
-    res.json({error: "Internal Server Error!"});
-  }
-}
-
 module.exports = {
   get_anime,
   search_anime,
@@ -425,6 +403,5 @@ module.exports = {
   movies,
   anime_list,
   thumb,
-  download
 };
 

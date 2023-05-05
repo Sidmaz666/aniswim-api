@@ -192,6 +192,7 @@ async function get_anime(res, id, ep) {
     const encrypt_ajax =
       "id=" + encrypted_key + "&alias=" + videoId + "&" + token;
 
+
     const fetchGogoRes = await axios.get(
       `
         ${iframeLink.protocol}//${iframeLink.hostname}/encrypt-ajax.php?${encrypt_ajax}`,
@@ -223,6 +224,7 @@ async function get_anime(res, id, ep) {
 
     const source = await getFileDetails(sourceFile, links[0].link);
     video_links.push(source);
+    const download_link = iframeLink.toString().replace('streaming.php','download')
 
     res.status(200).json({
       title,
@@ -236,6 +238,7 @@ async function get_anime(res, id, ep) {
       requested_episode,
       thumb,
       iframeLink,
+      download_link,
       video_links,
       streamLinks : links
     });

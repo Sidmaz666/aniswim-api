@@ -1,6 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const CryptoJS = require("crypto-js");
+const SITEURL="https://www8.gogoanimes.fi"
 
 async function getFileDetails(main_link, referer) {
   const url = new URL(main_link)
@@ -52,7 +53,7 @@ async function getFileDetails(main_link, referer) {
 
 async function get_anime(res, id, ep) {
 
-  const anime_url = `https://gogoanime.cl/category/${id}`;
+  const anime_url = `${SITEURL}/category/${id}`;
 
   const header = {
     Accept:
@@ -142,7 +143,7 @@ async function get_anime(res, id, ep) {
       .attr("ep_end")
       .toString();
 
-    const anime_watch_url = `https://gogoanime.cl/${id}-episode-${ep}`;
+    const anime_watch_url = `${SITEURL}/${id}-episode-${ep}`;
 
     send_fetch_req = await axios(anime_watch_url, { headers: header });
     fetch_raw_html = await send_fetch_req.data;
@@ -200,7 +201,7 @@ async function get_anime(res, id, ep) {
         headers: {
           "User-Agent":
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-	  Referer:  `https://gogoanime.cl/${id}-episode-${ep}`,
+	  Referer:  `${SITEURL}/${id}-episode-${ep}`,
           "X-Requested-With": "XMLHttpRequest",
         },
       }
@@ -293,7 +294,7 @@ async function Extractor(url){
 }
 
 async function search_anime(res, query, page) {
-  const search_url = `https://gogoanime.cl/search.html?keyword=${query}&page=${
+  const search_url = `${SITEURL}/search.html?keyword=${query}&page=${
     page || 1
   }`;
   try{
@@ -305,7 +306,7 @@ async function search_anime(res, query, page) {
 }
 
 async function genre(res, page,genre) {
-  const search_url = `https://gogoanime.cl/genre/${genre}?page=${page || 1}`;
+  const search_url = `${SITEURL}/genre/${genre}?page=${page || 1}`;
   try{
     const anime = await Extractor(search_url)
     res.status(200).json(anime);
@@ -316,7 +317,7 @@ async function genre(res, page,genre) {
 
 
 async function movies(res, page) {
-  const search_url = `https://gogoanime.cl/anime-movies.html?page=${page || 1}`;
+  const search_url = `${SITEURL}/anime-movies.html?page=${page || 1}`;
   try{
     const anime = await Extractor(search_url)
     res.status(200).json(anime);
@@ -326,7 +327,7 @@ async function movies(res, page) {
 }
 
 async function latest_anime(res, page) {
-  const search_url = `https://gogoanime.cl/new-season.html?page=${page || 1}`;
+  const search_url = `${SITEURL}/new-season.html?page=${page || 1}`;
   try{
     const anime = await Extractor(search_url)
     res.status(200).json(anime);
@@ -336,7 +337,7 @@ async function latest_anime(res, page) {
 }
 
 async function popular_anime(res, page) {
-  const search_url = `https://gogoanime.cl/popular.html?page=${page || 1}`;
+  const search_url = `${SITEURL}/popular.html?page=${page || 1}`;
   try{
     const anime = await Extractor(search_url)
     res.status(200).json(anime);
@@ -346,7 +347,7 @@ async function popular_anime(res, page) {
 }
 
 async function thumb(id){
- const anime_url = `https://gogoanime.cl/category/${id}`;
+ const anime_url = `${SITEURL}/category/${id}`;
   const header = {
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -362,7 +363,7 @@ async function thumb(id){
 
 
 async function anime_list(res,page,order){
-  const search_url = `https://gogoanime.cl/anime-list-${order}?page=${page || 1}`;
+  const search_url = `${SITEURL}/anime-list-${order}?page=${page || 1}`;
   const header = {
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",

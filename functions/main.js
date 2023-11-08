@@ -277,9 +277,12 @@ async function Extractor(url){
       let title = $(this).find("a").attr("title");
       const link = $(this).find("a").attr("href");
       const animeID = link.replace("/category/", "");
-      const thumbnail = thumb_arr[count];
+      let thumbnail = thumb_arr[count];
       if(title.length <= 0){
 	title = animeID.replaceAll('-',' ')
+      }
+      if(thumbnail.includes('/cover/')){ 
+	thumbnail = SITEURL + thumbnail
       }
       anime.push({
         title,
@@ -357,7 +360,10 @@ async function thumb(id){
     let send_fetch_req = await axios.get(anime_url, { headers: header });
     let fetch_raw_html = send_fetch_req.data;
     let $ = cheerio.load(fetch_raw_html);
-    const thumb = $("div.anime_info_body_bg").find("img").attr('src')
+    let thumb = $("div.anime_info_body_bg").find("img").attr('src')
+    if(thumb.includes('/cover/')){
+      thumb = SITEURL + thumb
+    }
     return thumb
 }
 

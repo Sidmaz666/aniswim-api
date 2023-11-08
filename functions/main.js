@@ -1,7 +1,7 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const CryptoJS = require("crypto-js");
-const SITEURL="https://www8.gogoanimes.fi"
+const SITEURL="https://www9.gogoanimes.fi"
 
 async function getFileDetails(main_link, referer) {
   const url = new URL(main_link)

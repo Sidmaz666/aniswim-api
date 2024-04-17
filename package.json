@@ -4,7 +4,8 @@
   "description": "A simple anime api for anime details and video links.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "Sidhartha Mazumder",
@@ -14,7 +15,9 @@
     "cheerio": "^1.0.0-rc.10",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
-    "express": "^4.17.3",
-    "nodemon": "^2.0.15"
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

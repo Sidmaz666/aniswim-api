@@ -38,6 +38,13 @@ server.get('/movies', (req,res) => {
   ani.Movies(res, page)
 })
 
+
+server.get('/releases', (req,res) => {
+  const page = req.query.page || 1
+  const type = req.query.type || 1
+  ani.Releases(res, page,type)
+})
+
 server.get('/genre',(req,res) => {
 const genre = ani.Categories.map(g => g.toLowerCase().replaceAll(' ','-'))
   res.status(200).json({
@@ -78,6 +85,6 @@ server.use(function(req,res){
 server.listen(port, 
   () => {
     console.log(`http://localhost:${port}`)
-  })
+})
 
 module.exports = server

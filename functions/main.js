@@ -151,13 +151,13 @@ async function Extractor(url){
     $(".items > li").each(function () {
       let title = $(this).find("a").attr("title");
       const link = $(this).find("a").attr("href");
-      const animeID = link.replace("/category/", "");
+      const animeID = link.replace("/category/", "").replace(/^\//,"");
       let thumbnail = thumb_arr[count];
       if(title.length <= 0){
 	title = animeID.replaceAll('-',' ')
       }
-      if(thumbnail.includes('/cover/')){ 
-	thumbnail = SITEURL + thumbnail
+      if(!thumbnail.includes('https://gogocdn.net/cover')){ 
+	thumbnail = "https://gogocdn.net" + thumbnail
       }
       anime.push({
         title,
@@ -279,6 +279,13 @@ async function Details(res,id){
     let $ = cheerio.load(fetch_raw_html);
     let title = $("div.anime_info_body_bg").find("h1").text();
     let thumb = $("div.anime_info_body_bg").find("img").attr('src')
+    if(!thumb.includes("https://")){
+	thumb = "https://gogocdn.net" + thumb.replace(SITEURL,"")
+    } else {
+      if(thumb.includes(SITEURL)){
+	thumb = "https://gogocdn.net" + thumb.replace(SITEURL,"")
+      }
+    }
     if(title.length <= 0){
 	title = id.replaceAll('-',' ')
       }
@@ -325,7 +332,7 @@ async function Details(res,id){
 	.replace(/ {2,}/g,',').replace(",","").replace(/\,$/,'')
         .trim() || "Not-Mentioned";
 
-    const description = $("div.anime_info_body_bg > div.description").text()
+    const description = $("div.anime_info_body_bg > div.description").text().replace(/\n\n/g,"")
     let total_ep = $("ul#episode_page li")
       .last()
       .find("a")
@@ -345,7 +352,7 @@ async function Details(res,id){
       other_name,
       anime_status,
       total_ep,
-      thumb:`${SITEURL}${thumb}`
+      thumb:thumb
     });
   } catch (error) {
     res.status(200).json({ message: error });
@@ -404,20 +411,22 @@ async function Popular(res, page) {
   }
 }
 
+async function Releases(res, page, type) {
+  const search_url = `https://ajax.gogocdn.net/ajax/page-recent-release.html?page=${page}&type=${type}`;
+  try{
+    const anime = await Extractor(search_url)
+    res.status(200).json(anime);
+  } catch (error) {
+    res.status(200).json({ message: error });
+  }
+}
+
 async function List(res,page,order){
   const search_url = `${SITEURL}/anime-list-${order}?page=${page || 1}`;
-  const header = {
-    Accept:
-      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "User-Agent":
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
-  };
-
     const send_search_request = await axios.get(search_url, {
-      headers: header,
+      headers: REQUEST_HEADER,
     });
     const search_raw_html = send_search_request.data;
-
     const $ = cheerio.load(search_raw_html);
 
     const anime = [];
@@ -433,8 +442,6 @@ async function List(res,page,order){
         animeID,
       });
     });
-
-
   res.json(anime)
 }
 
@@ -447,6 +454,7 @@ module.exports = {
   Movies,
   List,
   Categories,
-  Details
+  Details,
+  Releases
 };
 

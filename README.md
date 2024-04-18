@@ -10,15 +10,16 @@ Run Locally - `npm run start ` or `node index.js`
 
 ## Endpoints:
 
-1. `/` - List of popular Anime with animeID
-2. `/anime?id=` - Get Anime Detail and Video Links with `animeID`
-3. `/search?q=` - Search Anime get animeID
-4. `/latest` - Get Latest Anime List
+1. `/` , `/popular` - List of popular Anime with animeID
+2. `/links?id=animeID` - Get Anime Streaming Links
+3. `/search?q=searchQuery` - Search Anime get animeID
+4. `/latest` , `/new` - Get Latest Anime List
 5. `/movies` - Get Anime Movies List
 6. `/genre` - List of Genres
-7. `/genre/{genre_name}` - Get Anime List Based on Genre
-8. `/thumbnail/{animeID}` - Get Thumbnail of a Particular Anime
-9. `/anime-list` - Get List of Anime
+7. `/genre/genre_name` - Get Anime List Based on Genre
+8. `/details?=animeID` - Get Thumbnail of a Particular Anime
+9. `/list?page=1?order=m` - Get List of Anime
+10. `/releases?page=1&type=1` - `Type: 1 = Sub, 2 = Dub, 3 = Chinese` - Get Recent Releases.
 
 
 ## URL Query Parameters
@@ -41,7 +42,3 @@ Run Locally - `npm run start ` or `node index.js`
 /list?list=z
 /details?id=one-piece
 ```
-
-
-
-

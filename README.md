@@ -41,4 +41,5 @@ Run Locally - `npm run start ` or `node index.js`
 /genre/action
 /list?list=z
 /details?id=one-piece
+
 ```

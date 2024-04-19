@@ -1,7 +1,10 @@
 const express = require('express'); 
 const ani = require('./functions/main')
 const cors = require('cors')
+const compression = require('compression');
 const server = express()
+
+server.use(compression())
 server.use(cors())
 
 const port = process.env.PORT || 3020 

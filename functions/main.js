@@ -161,7 +161,7 @@ async function get_fillers_list(id){
 	}
     });
    }
-    return fillers	
+    return fillers[0].split(",").map((e) => { return e.trim()})	
   } catch (error) {
     return fillers	
   }
@@ -208,7 +208,7 @@ async function Extractor(url){
 
 async function Links(res, id, ep) {
   try {
-    const requested_episode = ep;
+    const requested_episode = String(ep);
     const anime_watch_url = `${SITEURL}/${id}-episode-${ep}`;
     const send_fetch_req = await axios(anime_watch_url, { headers: REQUEST_HEADER });
     const fetch_raw_html = await send_fetch_req.data;
@@ -309,10 +309,12 @@ async function Links(res, id, ep) {
 
 async function Details(res,id){
   const anime_url = `${SITEURL}/category/${id}`;
-  const fillers = await get_fillers_list(id)
   const header = REQUEST_HEADER;
   try {
-    let send_fetch_req = await axios.get(anime_url, { headers: header });
+    const [fillers,send_fetch_req] = await Promise.all([
+	  get_fillers_list(id),
+	  axios.get(anime_url, { headers: header })
+    ]) 
     let fetch_raw_html = send_fetch_req.data;
     let $ = cheerio.load(fetch_raw_html);
     let title = $("div.anime_info_body_bg").find("h1").text();

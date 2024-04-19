@@ -130,6 +130,43 @@ async function get_available_links(main_link, referer) {
   }
 }
 
+function range_expand(range) {
+    const [start, end] = range.split('-').map(Number);
+    const num = [];
+    for (let i = start; i <= end; i++) {
+        num.push(i);
+    }
+    return num.join(', ');
+}
+
+async function get_fillers_list(id){
+  const anime_filler_url = `https://www.animefillerlist.com/shows/${id.replace("-dub","")}`
+  const fillers = []
+  try {
+    send_fetch_req = await axios.get(anime_filler_url,{headers:REQUEST_HEADER});
+    fetch_raw_html = send_fetch_req.data;
+    $ = cheerio.load(fetch_raw_html);
+      if(send_fetch_req.status !== 404){
+	$('div.filler span.Label').each((index, element) => {
+	if ($(element).text().trim() === 'Filler Episodes:') {
+	    const fillerEpisode = $(element).next().text().trim();
+	    const episodes = fillerEpisode.split(',').map(ep => {
+		if (ep.includes('-')) {
+		    return range_expand(ep.trim());
+		} else {
+		    return ep.trim();
+		}
+	    });
+	    fillers.push(episodes.join(', '));
+	}
+    });
+   }
+    return fillers	
+  } catch (error) {
+    return fillers	
+  }
+}
+
 async function Extractor(url){
     const header = REQUEST_HEADER
     const send_search_request = await axios.get(url, {
@@ -272,6 +309,7 @@ async function Links(res, id, ep) {
 
 async function Details(res,id){
   const anime_url = `${SITEURL}/category/${id}`;
+  const fillers = await get_fillers_list(id)
   const header = REQUEST_HEADER;
   try {
     let send_fetch_req = await axios.get(anime_url, { headers: header });
@@ -341,7 +379,6 @@ async function Details(res,id){
 
     total_ep = total_ep == 0 ? 1 : total_ep
 
-
     res.status(200).json({
       animeID: id,
       title,
@@ -352,7 +389,8 @@ async function Details(res,id){
       other_name,
       anime_status,
       total_ep,
-      thumb:thumb
+      thumb:thumb,
+      fillers_ep:fillers
     });
   } catch (error) {
     res.status(200).json({ message: error });

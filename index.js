@@ -15,9 +15,7 @@ server.get(['/','/popular'], (req,res) => {
 })
 
 server.get('/search', (req,res) => {
-  const query = req.query.q
-  const page = req.query.page || 1
-  ani.Search(res,query,page)
+  ani.Search(res,{...req.query})
 })
 
 server.get('/details',(req,res) => {
@@ -53,6 +51,23 @@ const genre = ani.Categories.map(g => g.toLowerCase().replaceAll(' ','-'))
   res.status(200).json({
 	genre
   })
+})
+
+server.get('/filters',(req,res) => {
+    res.status(200).json(
+      {
+	filter_options:{
+		genre:ani.Categories.map(g => g.toLowerCase().replaceAll(' ','-')),
+      		country:["china","japan"],
+      		season:["fall","summer","spring","winter"],
+	  	year: Array.from({ length: new Date().getFullYear() - 1998 }, (_, index) => 1999 + index),
+      		language:["subdub","sub","dub"],
+      		type:["movie;3","tv;1","ova;26","ona;30","special;2","music;32"],
+      		status: ["Upcoming","Ongoing","Completed"],
+      		sort:["title_az","recently_updated","recently_added","release_date"]
+       }
+     }
+    )
 })
 
 server.get('/genre/:genre', async (req,res) => {

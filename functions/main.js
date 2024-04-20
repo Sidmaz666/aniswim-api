@@ -193,9 +193,9 @@ async function Extractor(url){
       if(title.length <= 0){
 	title = animeID.replaceAll('-',' ')
       }
-      if(!thumbnail.includes('https://gogocdn.net/cover')){ 
+      if(!thumbnail.includes('https://gogocdn.net/')){ 
 	thumbnail = "https://gogocdn.net" + thumbnail
-      }
+      } 
       anime.push({
         title,
         animeID,
@@ -399,12 +399,33 @@ async function Details(res,id){
   }
 }
 
-async function Search(res, query, page) {
-  const search_url = `${SITEURL}/search.html?keyword=${query}&page=${
-    page || 1
-  }`;
+async function Search(res,{...args}) {
+  const query = args.q
+    if(!query || query.length == 0){
+      args[`query_type`] = "filter"
+    }
+  const page = args.page || 1
+  const page_type = args.query_type || "search"
+  delete args.q
+  delete args.page
+  delete args.query_type
+  const extra_args = []
+  for (const key in args) {
+  	if (Object.hasOwnProperty.call(args, key)) {
+  		const element = args[key];
+	  	if(typeof element == "object"){
+		  element.forEach((e) => {
+		    extra_args.push(`&${key}[]=${e}`)
+		  })
+		} else {
+		  extra_args.push(`&${key}=${element}`)
+		}
+  	}
+  }
+  const search_url = `${SITEURL}/${page_type}.html?keyword=${query}&page=${page}${extra_args}`;
   try{
     const anime = await Extractor(search_url)
+    anime.push({filters:args})
     res.status(200).json(anime);
   } catch (error) {
     res.status(200).json({ message: error });

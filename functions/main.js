@@ -422,7 +422,8 @@ async function Search(res,{...args}) {
 		}
   	}
   }
-  const search_url = `${SITEURL}/${page_type}.html?keyword=${query}&page=${page}${extra_args}`;
+  const search_url = `${SITEURL}/${page_type}.html?keyword=${query}&page=${page}${extra_args.join("")}`;
+  console.log(search_url)
   try{
     const anime = await Extractor(search_url)
     anime.push({filters:args})

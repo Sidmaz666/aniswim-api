@@ -74,7 +74,7 @@ server.get('/genre/:genre', async (req,res) => {
   const page = req.query.page || 1
   let genre = req.params.genre 
   let checkExist = false
-  genre_list.forEach((g) => {
+  ani.Categories.forEach((g) => {
     if(g.toLowerCase().replaceAll(' ','-') == genre){
       checkExist = true
     }

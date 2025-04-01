@@ -308,7 +308,7 @@ async function Links(res, id, ep) {
 }
 
 async function Details(res,id){
-  const anime_url = `${SITEURL}/category/${id}`;
+  const anime_url = `${SITEURL}/${id}`;
   const header = REQUEST_HEADER;
   try {
     const [fillers,send_fetch_req] = await Promise.all([

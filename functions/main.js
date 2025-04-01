@@ -193,8 +193,8 @@ async function Extractor(url){
       if(title.length <= 0){
 	title = animeID.replaceAll('-',' ')
       }
-      if(!thumbnail.includes('https://gogocdn.net/')){ 
-	thumbnail = "https://gogocdn.net" + thumbnail
+      if(!thumbnail.includes('https://www28.gogoanimes.fi/')){ 
+	thumbnail = "https://www28.gogoanimes.fi" + thumbnail
       } 
       anime.push({
         title,
@@ -320,10 +320,10 @@ async function Details(res,id){
     let title = $("div.anime_info_body_bg").find("h1").text();
     let thumb = $("div.anime_info_body_bg").find("img").attr('src')
     if(!thumb.includes("https://")){
-	thumb = "https://gogocdn.net" + thumb.replace(SITEURL,"")
+	thumb = "https://www28.gogoanimes.fi" + thumb.replace(SITEURL,"")
     } else {
       if(thumb.includes(SITEURL)){
-	thumb = "https://gogocdn.net" + thumb.replace(SITEURL,"")
+	thumb = "https://www28.gogoanimes.fi" + thumb.replace(SITEURL,"")
       }
     }
     if(title.length <= 0){
